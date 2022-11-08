@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/eunomie/dague"
+
 	"github.com/eunomie/dague/types"
 
 	"golang.org/x/sync/errgroup"
@@ -16,43 +18,35 @@ import (
 var (
 	BuildImage = "golang:1.19.3-alpine3.16"
 	AppDir     = "/go/src"
-	goModFiles = []string{"go.mod", "go.sum"}
 )
 
 func Base(c *dagger.Client) *dagger.Container {
 	return c.Container().
 		From(BuildImage).
-		Exec(apkAdd("build-base")).
-		Exec(goInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
-		Exec(goInstall("mvdan.cc/gofumpt@latest"))
+		Exec(dague.ApkInstall("build-base")).
+		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
+		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest"))
 }
 
 func GoDeps(c *dagger.Client) *dagger.Container {
-	src := c.Host().Workdir()
-	goMods := c.Directory()
-	for _, f := range goModFiles {
-		goMods = goMods.WithFile(f, src.File(f))
-	}
-
 	return Base(c).
 		WithWorkdir(AppDir).
-		WithMountedDirectory(AppDir, goMods).
-		Exec(goModDownload())
+		WithMountedDirectory(AppDir, dague.GoModFiles(c)).
+		Exec(dague.GoModDownload())
 }
 
 func Sources(c *dagger.Client) *dagger.Container {
-	src := c.Host().Workdir()
 	return GoDeps(c).
-		WithMountedDirectory(AppDir, src)
+		WithMountedDirectory(AppDir, c.Host().Workdir())
 }
 
 func GoMod(c *dagger.Client) *dagger.Container {
 	return Sources(c).
-		Exec(goModTidy())
+		Exec(dague.GoModTidy())
 }
 
 func ExportGoMod(ctx context.Context, c *dagger.Client) error {
-	return exportGoMod(ctx, GoMod(c), AppDir, "./")
+	return dague.ExportGoMod(ctx, GoMod(c), AppDir, "./")
 }
 
 func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error {
@@ -115,7 +109,7 @@ func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuil
 }
 
 func GoVulnCheck(ctx context.Context, c *dagger.Client) error {
-	return exec(ctx,
+	return dague.Exec(ctx,
 		Sources(c).WithEnvVariable("CGO_ENABLED", "0"),
 		dagger.ContainerExecOpts{
 			Args: []string{"govulncheck", "./..."},
@@ -123,19 +117,19 @@ func GoVulnCheck(ctx context.Context, c *dagger.Client) error {
 }
 
 func Gofumpt(ctx context.Context, c *dagger.Client) error {
-	return exec(ctx, Sources(c), dagger.ContainerExecOpts{
+	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"gofumpt", "-d", "-e", "."},
 	})
 }
 
 func Gofmt(ctx context.Context, c *dagger.Client) error {
-	return exec(ctx, Sources(c), dagger.ContainerExecOpts{
+	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"gofmt", "-d", "-e", "."},
 	})
 }
 
 func RunGoTests(ctx context.Context, c *dagger.Client) error {
-	return exec(ctx, Sources(c), dagger.ContainerExecOpts{
+	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "./..."},
 	})
 }
