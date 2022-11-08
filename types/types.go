@@ -1,11 +1,15 @@
 package types
 
-type LocalBuildOpts struct {
+type BuildOpts struct {
 	EnvVars    map[string]string
 	BuildFlags []string
 	Dir        string
 	In         string
-	Out        string
+}
+
+type LocalBuildOpts struct {
+	BuildOpts
+	Out string
 }
 
 type Platform struct {
@@ -14,10 +18,7 @@ type Platform struct {
 }
 
 type CrossBuildOpts struct {
+	BuildOpts
 	Platforms     []Platform
-	EnvVars       map[string]string
-	BuildFlags    []string
-	Dir           string
-	In            string
 	OutFileFormat string
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path"
 	"runtime"
 
 	"github.com/eunomie/dague"
@@ -50,27 +51,8 @@ func ExportGoMod(ctx context.Context, c *dagger.Client) error {
 }
 
 func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error {
-	file := "/" + buildOpts.Dir + "/" + buildOpts.Out
-	absFile := AppDir + file
-	localFile := "." + file
-	cont := Sources(c).
-		WithEnvVariable("GOOS", runtime.GOOS).
-		WithEnvVariable("GOARCH", runtime.GOARCH).
-		WithEnvVariable("GO111MODULE", "auto")
-	for k, v := range buildOpts.EnvVars {
-		cont = cont.WithEnvVariable(k, v)
-	}
-	ok, err := cont.Exec(dagger.ContainerExecOpts{
-		Args: append([]string{"go", "build"},
-			append(buildOpts.BuildFlags, "-o", localFile, buildOpts.In)...),
-	}).File(absFile).Export(ctx, localFile)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.New("could not export " + file)
-	}
-	return nil
+	file := path.Join(buildOpts.Dir, buildOpts.Out)
+	return goBuild(ctx, Sources(c), runtime.GOOS, runtime.GOARCH, buildOpts.BuildOpts, file)
 }
 
 func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuildOpts) error {
@@ -82,27 +64,8 @@ func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuil
 		goos := platform.OS
 		goarch := platform.Arch
 		g.Go(func() error {
-			file := fmt.Sprintf("/"+buildOpts.Dir+"/"+buildOpts.OutFileFormat, goos, goarch)
-			absFile := AppDir + file
-			localFile := "." + file
-			cont := src.
-				WithEnvVariable("GOOS", goos).
-				WithEnvVariable("GOARCH", goarch).
-				WithEnvVariable("GO111MODULE", "auto")
-			for k, v := range buildOpts.EnvVars {
-				cont = cont.WithEnvVariable(k, v)
-			}
-			ok, err := cont.Exec(dagger.ContainerExecOpts{
-				Args: append([]string{"go", "build"},
-					append(buildOpts.BuildFlags, "-o", localFile, buildOpts.In)...),
-			}).File(absFile).Export(ctx, localFile)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				return errors.New("could not export " + file)
-			}
-			return nil
+			file := fmt.Sprintf(path.Join(buildOpts.Dir, buildOpts.OutFileFormat), goos, goarch)
+			return goBuild(ctx, src, goos, goarch, buildOpts.BuildOpts, file)
 		})
 	}
 	return g.Wait()
@@ -132,4 +95,29 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error {
 	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "./..."},
 	})
+}
+
+func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error {
+	var (
+		absoluteFileInContainer = path.Join(AppDir, buildFile)
+		localFile               = path.Join(".", buildFile)
+	)
+
+	cont := src.
+		WithEnvVariable("GOOS", os).
+		WithEnvVariable("GOARCH", arch)
+	for k, v := range buildOpts.EnvVars {
+		cont = cont.WithEnvVariable(k, v)
+	}
+	ok, err := cont.Exec(dagger.ContainerExecOpts{
+		Args: append([]string{"go", "build"},
+			append(buildOpts.BuildFlags, "-o", localFile, buildOpts.In)...),
+	}).File(absoluteFileInContainer).Export(ctx, localFile)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("could not export " + buildFile)
+	}
+	return nil
 }
