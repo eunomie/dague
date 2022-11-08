@@ -8,13 +8,59 @@ Based on:
 - [dagger.io](https://dagger.io)
 - [mage](https://magefile.org)
 
+## Helpers on top of Dagger
+
+Here is some example of helpers on top of `dagger`, to help deal with Docker and Go projects.
+(in the examples, `c` is a `*dagger.Client`)
+
+* Install `apk` packages (for alpine based containers)
+
+    ```go
+   c.Container().
+       From("alpine").
+       Exec(dague.ApkInstall("build-base"))
+   ```
+
+* Install `go` packages
+
+   ```go
+   c.Container().
+       From("golang").
+       Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest"))
+   ```
+
+* Install `apt` packages (for debian like containers). This is a bit different than with `apk` but it includes
+cleaning at the end
+
+   ```go
+   dague.AptInstall(
+       c.Container().From("debian"),
+       "gcc", "git")
+   ```
+
+* Exec a command but return an error if any (just to avoid some boilerplate)
+
+   ```go
+   if err := dague.Exec(
+       context.Background(),
+       c.Container().From(baseImage),
+       dagger.ContainerExecOpts{
+           Args: []string{...},
+       },
+   }); err != nil {
+       ...
+   }
+   ```
+
+## Shared Tooling
+
 The goal for this collection of tools is to make them easy to share across multiple repositories. So you can more easily bootstrap
 and maintain projects as all the default actions are available from the start. Also as everything is running in containers, you
 don't have to worry about not having the right version of a tool, or even the right version of the compiler.
 
-## Example
+### Examples
 
-### WIP Example
+#### WIP Example
 
 You can find a real, work in progress, example/experiment/PoC on `dagger` branch of [`docker/scan-cli-plugin`](https://github.com/eunomie/scan-cli-plugin/tree/dagger)
 
@@ -120,7 +166,7 @@ And that's it 🎉
 You just cross compiled the plugin to 5 different platforms, just by requiring Docker (and `git` in this specific case).
 And a lot of what's available can be shared across multiple projects.
 
-### Basic Example
+#### Basic Example
 
 With the following `magefile.go`
 
@@ -151,7 +197,7 @@ Targets:
   lint:govuln     checks vulnerabilities in Go code
 ```
 
-### Build Example
+#### Build Example
 
 Now add a little bit more code in your `magefile.go`.
 
@@ -177,20 +223,27 @@ type Build mg.Namespace
 // Local builds local binary of myapp, for the running platform and export it to dist/
 func (Build) Local(ctx context.Context) error {
 	return golang.Local(ctx, types.LocalBuildOpts{
-		Dir: "dist",
-		In:  "./cmd/myapp",
+		BuildOpts: types.BuildOpts{
+			Dir: "dist",
+			In:  "./cmd/myapp",
+			EnvVars: map[string]string{
+				"CGO_ENABLED": "0",
+			},
+        },
 		Out: "myapp",
-		EnvVars: map[string]string{
-			"CGO_ENABLED": "0",
-		},
 	})
 }
 
 // Cross builds myapp binaries for all the supported platforms and export them to dist/
 func (Build) Cross(ctx context.Context) error {
 	return golang.Cross(ctx, types.CrossBuildOpts{
-		Dir:           "dist",
-		In:            "./cmd/myapp",
+		BuildOpts: types.BuildOpts{
+			Dir:           "dist",
+			In:            "./cmd/myapp",
+			EnvVars: map[string]string{
+				"CGO_ENABLED": "0",
+			},
+        },
 		OutFileFormat: "myapp_%s_%s",
 		Platforms: []types.Platform{
 			{"linux", "amd64"},
@@ -198,9 +251,6 @@ func (Build) Cross(ctx context.Context) error {
 			{"darwin", "amd64"},
 			{"darwin", "arm64"},
 			{"windows", "amd64"},
-		},
-		EnvVars: map[string]string{
-			"CGO_ENABLED": "0",
 		},
 	})
 }
@@ -227,7 +277,7 @@ Targets:
   lint:govuln     checks vulnerabilities in Go code
 ```
 
-## Installation and Requirements
+### Installation and Requirements
 
 1. In the repository of you go project, creates a `tools` folder (name is up to you)
 2. Add your `magefile.go` in the `tools` folder
