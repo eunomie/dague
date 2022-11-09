@@ -2,18 +2,15 @@ package stages
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path"
 	"runtime"
 
-	"github.com/eunomie/dague"
-
 	"github.com/eunomie/dague/types"
-
 	"golang.org/x/sync/errgroup"
 
 	"dagger.io/dagger"
+	"github.com/eunomie/dague"
 )
 
 var (
@@ -79,45 +76,28 @@ func GoVulnCheck(ctx context.Context, c *dagger.Client) error {
 		})
 }
 
-func Gofumpt(ctx context.Context, c *dagger.Client) error {
+func PrintGofmt(ctx context.Context, c *dagger.Client) error {
+	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
+		Args: []string{"gofmt", "-d", "-e", "."},
+	})
+}
+
+func ApplyGofmt(ctx context.Context, c *dagger.Client) error {
+	return applyGoformatter(ctx, c, "gofmt")
+}
+
+func PrintGofumpt(ctx context.Context, c *dagger.Client) error {
 	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"gofumpt", "-d", "-e", "."},
 	})
 }
 
-func Gofmt(ctx context.Context, c *dagger.Client) error {
-	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
-		Args: []string{"gofmt", "-d", "-e", "."},
-	})
+func ApplyGofumpt(ctx context.Context, c *dagger.Client) error {
+	return applyGoformatter(ctx, c, "gofumpt")
 }
 
 func RunGoTests(ctx context.Context, c *dagger.Client) error {
 	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "./..."},
 	})
-}
-
-func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error {
-	var (
-		absoluteFileInContainer = path.Join(AppDir, buildFile)
-		localFile               = path.Join(".", buildFile)
-	)
-
-	cont := src.
-		WithEnvVariable("GOOS", os).
-		WithEnvVariable("GOARCH", arch)
-	for k, v := range buildOpts.EnvVars {
-		cont = cont.WithEnvVariable(k, v)
-	}
-	ok, err := cont.Exec(dagger.ContainerExecOpts{
-		Args: append([]string{"go", "build"},
-			append(buildOpts.BuildFlags, "-o", localFile, buildOpts.In)...),
-	}).File(absoluteFileInContainer).Export(ctx, localFile)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.New("could not export " + buildFile)
-	}
-	return nil
 }
