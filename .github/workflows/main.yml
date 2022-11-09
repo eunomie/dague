@@ -37,17 +37,14 @@ jobs:
           dry_run: true
           release_branches: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      # Tag but don't push it, just to generate binary (if needed) with the right tag
-      - name: Local tag
-        run: git tag ${{ steps.new_version.outputs.new_tag }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: eunomie/dague
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=${{steps.new_version.outputs.new_tag}}
+            type=semver,pattern={{major}}.{{minor}},value=${{steps.new_version.outputs.new_tag}}
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
@@ -56,9 +53,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      # Remove tag so next step can work as expected
-      - name: Remove local tag
-        run: git tag -d ${{ steps.new_version.outputs.new_tag }}
       - name: Tag version
         if: github.event_name == 'push'
         uses: mathieudutour/github-tag-action@v6.1
