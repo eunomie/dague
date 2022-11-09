@@ -6,6 +6,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/eunomie/dague/config"
+
 	"github.com/eunomie/dague/types"
 
 	"dagger.io/dagger"
@@ -46,7 +48,7 @@ func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) e
 
 func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error {
 	var (
-		absoluteFileInContainer = path.Join(AppDir, buildFile)
+		absoluteFileInContainer = path.Join(config.AppDir, buildFile)
 		localFile               = path.Join(".", buildFile)
 	)
 

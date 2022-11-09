@@ -6,6 +6,8 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/eunomie/dague/config"
+
 	"github.com/eunomie/dague/types"
 	"golang.org/x/sync/errgroup"
 
@@ -13,14 +15,9 @@ import (
 	"github.com/eunomie/dague"
 )
 
-var (
-	BuildImage = "golang:1.19.3-alpine3.16"
-	AppDir     = "/go/src"
-)
-
 func Base(c *dagger.Client) *dagger.Container {
 	return c.Container().
-		From(BuildImage).
+		From(config.BuildImage).
 		Exec(dague.ApkInstall("build-base")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
 		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest"))
@@ -28,14 +25,14 @@ func Base(c *dagger.Client) *dagger.Container {
 
 func GoDeps(c *dagger.Client) *dagger.Container {
 	return Base(c).
-		WithWorkdir(AppDir).
-		WithMountedDirectory(AppDir, dague.GoModFiles(c)).
+		WithWorkdir(config.AppDir).
+		WithMountedDirectory(config.AppDir, dague.GoModFiles(c)).
 		Exec(dague.GoModDownload())
 }
 
 func Sources(c *dagger.Client) *dagger.Container {
 	return GoDeps(c).
-		WithMountedDirectory(AppDir, c.Host().Workdir())
+		WithMountedDirectory(config.AppDir, c.Host().Workdir())
 }
 
 func GoMod(c *dagger.Client) *dagger.Container {
@@ -44,7 +41,7 @@ func GoMod(c *dagger.Client) *dagger.Container {
 }
 
 func ExportGoMod(ctx context.Context, c *dagger.Client) error {
-	return dague.ExportGoMod(ctx, GoMod(c), AppDir, "./")
+	return dague.ExportGoMod(ctx, GoMod(c), config.AppDir, "./")
 }
 
 func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error {
