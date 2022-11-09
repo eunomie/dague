@@ -35,6 +35,13 @@ func (Go) Test(ctx context.Context) error {
 	})
 }
 
+// Doc generates go documentation in README.md files
+func (Go) Doc(ctx context.Context) error {
+	return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+		return daggers.GoDoc(ctx, c)
+	})
+}
+
 // Local compile go code to a binary ane export it
 func Local(ctx context.Context, buildOpts types.LocalBuildOpts) error {
 	return dague.RunInDagger(ctx, func(c *dagger.Client) error {

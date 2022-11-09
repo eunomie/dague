@@ -20,7 +20,8 @@ func Base(c *dagger.Client) *dagger.Container {
 		From(config.BuildImage).
 		Exec(dague.ApkInstall("build-base")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
-		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest"))
+		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest")).
+		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
 }
 
 func GoDeps(c *dagger.Client) *dagger.Container {
@@ -97,4 +98,17 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error {
 	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
 		Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "./..."},
 	})
+}
+
+func GoDoc(ctx context.Context, c *dagger.Client) error {
+	ok, err := Sources(c).Exec(dagger.ContainerExecOpts{
+		Args: []string{"gomarkdoc", "-u", "-e", "-o", "_godoc_/{{.Dir}}/README.md", "./..."},
+	}).Directory("./_godoc_").Export(ctx, ".")
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("could not export go documentation")
+	}
+	return nil
 }
