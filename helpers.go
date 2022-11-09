@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"dagger.io/dagger"
 )
@@ -12,16 +13,54 @@ var (
 	goModFiles = []string{"go.mod", "go.sum"}
 )
 
-// Exec runs the specified command and check the error and exit code.
-func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error {
-	exitCode, err := cont.Exec(opts).ExitCode(ctx)
+// RunInDagger initialize the dagger client and close it. In between run the specified function.
+func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error {
+	c, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stderr))
 	if err != nil {
 		return err
 	}
-	if exitCode != 0 {
-		return errors.New("exec failed")
+	defer c.Close()
+
+	return do(c)
+}
+
+// Exec runs the specified command and check the error and exit code.
+func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error {
+	_, err := ExecCont(ctx, cont, opts)
+	return err
+}
+
+// ExecCont runs the specified command and check the error and exist code. Returns the container and the error if exists.
+func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error) {
+	cont := src.Exec(opts)
+	exitCode, err := cont.ExitCode(ctx)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	if exitCode != 0 {
+		return nil, errors.New("exec failed")
+	}
+	return cont, nil
+}
+
+// ExecOut runs the specified command and return the content of stdout and stderr.
+func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error) {
+	cont, err := ExecCont(ctx, src, opts)
+	if err != nil {
+		return "", "", err
+	}
+
+	stdout, err := cont.Stdout().Contents(ctx)
+	if err != nil {
+		return "", "", err
+	}
+
+	stderr, err := cont.Stderr().Contents(ctx)
+	if err != nil {
+		return "", "", err
+	}
+
+	return stdout, stderr, nil
 }
 
 // GoInstall installs the specified go packages.
