@@ -18,7 +18,7 @@ import (
 func Base(c *dagger.Client) *dagger.Container {
 	return c.Container().
 		From(config.BuildImage).
-		Exec(dague.ApkInstall("build-base")).
+		Exec(dague.ApkInstall("build-base", "git")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
 		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest")).
 		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
