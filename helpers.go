@@ -9,9 +9,7 @@ import (
 	"dagger.io/dagger"
 )
 
-var (
-	goModFiles = []string{"go.mod", "go.sum"}
-)
+var goModFiles = []string{"go.mod", "go.sum"}
 
 // RunInDagger initialize the dagger client and close it. In between it runs the specified function.
 // Example:
