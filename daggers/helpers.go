@@ -1,10 +1,12 @@
-package stages
+package daggers
 
 import (
 	"context"
 	"errors"
 	"path"
 	"strings"
+
+	"github.com/eunomie/dague/config"
 
 	"github.com/eunomie/dague/types"
 
@@ -27,26 +29,12 @@ func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) e
 		return err
 	}
 
-	for _, f := range strings.Split(list, "\n") {
-		file := strings.TrimSpace(f)
-		if file == "" {
-			continue
-		}
-		ok, err := cont.File(f).Export(ctx, f)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return errors.New("could not export " + f)
-		}
-	}
-
-	return nil
+	return exportFiles(ctx, cont, strings.Split(list, "\n"))
 }
 
 func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error {
 	var (
-		absoluteFileInContainer = path.Join(AppDir, buildFile)
+		absoluteFileInContainer = path.Join(config.AppDir, buildFile)
 		localFile               = path.Join(".", buildFile)
 	)
 
@@ -65,6 +53,23 @@ func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildO
 	}
 	if !ok {
 		return errors.New("could not export " + buildFile)
+	}
+	return nil
+}
+
+func exportFiles(ctx context.Context, cont *dagger.Container, files []string) error {
+	for _, f := range files {
+		file := strings.TrimSpace(f)
+		if file == "" {
+			continue
+		}
+		ok, err := cont.File(file).Export(ctx, file)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("could not export " + f)
+		}
 	}
 	return nil
 }

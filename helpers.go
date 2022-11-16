@@ -9,11 +9,14 @@ import (
 	"dagger.io/dagger"
 )
 
-var (
-	goModFiles = []string{"go.mod", "go.sum"}
-)
+var goModFiles = []string{"go.mod", "go.sum"}
 
-// RunInDagger initialize the dagger client and close it. In between run the specified function.
+// RunInDagger initialize the dagger client and close it. In between it runs the specified function.
+// Example:
+//
+//	dague.RunInDagger(ctx, func(c *dagger.Client) error {
+//	    c.Container().From("alpine")
+//	})
 func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error {
 	c, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stderr))
 	if err != nil {
@@ -25,12 +28,22 @@ func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error {
 }
 
 // Exec runs the specified command and check the error and exit code.
+// Example:
+//
+//	err := dague.Exec(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
+//	    Args: []string{"go", "build"},
+//	})
 func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error {
 	_, err := ExecCont(ctx, cont, opts)
 	return err
 }
 
 // ExecCont runs the specified command and check the error and exist code. Returns the container and the error if exists.
+// Example:
+//
+//	cont, err := dague.ExecCont(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
+//	    Args: []string{"go", "build"},
+//	})
 func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error) {
 	cont := src.Exec(opts)
 	exitCode, err := cont.ExitCode(ctx)
@@ -44,6 +57,11 @@ func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerE
 }
 
 // ExecOut runs the specified command and return the content of stdout and stderr.
+// Example:
+//
+//	stdout, stderr, err := dague.ExecOut(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
+//	    Args: []string{"go", "build"},
+//	})
 func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error) {
 	cont, err := ExecCont(ctx, src, opts)
 	if err != nil {

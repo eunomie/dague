@@ -1,15 +1,17 @@
-module github.com/eunomie/dague
+module dague
 
 go 1.19
 
-require (
-	dagger.io/dagger v0.4.0
-	github.com/alecthomas/kong v0.7.1
-	github.com/magefile/mage v1.14.0
-	golang.org/x/sync v0.1.0
-)
+replace github.com/eunomie/dague => ../
+
+replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220414164044-61404de7df1a+incompatible
+
+replace github.com/tonistiigi/fsutil => github.com/tonistiigi/fsutil v0.0.0-20220115021204-b19f7f9cb274
+
+require github.com/eunomie/dague v0.0.0-00010101000000-000000000000
 
 require (
+	dagger.io/dagger v0.4.0 // indirect
 	github.com/Khan/genqlient v0.5.0 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
@@ -39,6 +41,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.2 // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/magefile/mage v1.14.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -67,6 +70,7 @@ require (
 	go.opentelemetry.io/proto/otlp v0.18.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
@@ -74,7 +78,3 @@ require (
 	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
-
-replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220414164044-61404de7df1a+incompatible
-
-replace github.com/tonistiigi/fsutil => github.com/tonistiigi/fsutil v0.0.0-20220115021204-b19f7f9cb274
