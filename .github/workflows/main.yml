@@ -19,10 +19,8 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '1.19'
-      - name: Install mage
-        run: go install github.com/magefile/mage
       - name: bootstrap binary
-        run: cd hack; mage -compile dague
+        run: go build -o dague ./cmd/dague
       - uses: actions/upload-artifact@v3
         with:
           name: dague-bin
@@ -39,7 +37,7 @@ jobs:
         with:
           name: dague-bin
       - name: govulncheck
-        run: chmod +x ./dague; ./dague lint:govuln
+        run: chmod +x ./dague; ./dague lint govuln
 
   gofumpt:
     needs: [mage]
@@ -52,7 +50,7 @@ jobs:
         with:
           name: dague-bin
       - name: gofumpt
-        run: chmod +x ./dague; ./dague gofumpt:print
+        run: chmod +x ./dague; ./dague gofumpt print
 
   build-cross:
     needs: [mage]
@@ -65,7 +63,7 @@ jobs:
         with:
           name: dague-bin
       - name: cross build binaries
-        run: chmod +x ./dague; ./dague go:cross ./cmd/dague
+        run: chmod +x ./dague; ./dague go cross ./cmd/dague
       - name: Upload artifacts
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
