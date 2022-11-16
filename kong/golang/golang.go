@@ -17,14 +17,16 @@ type (
 		Mod   ModCmd        `cmd:"" group:"golang" help:"run go mod tidy and export go.mod and go.sum files"`
 		Test  TestCmd       `cmd:"" group:"golang" help:"run go tests"`
 		Doc   DocCmd        `cmd:"" group:"golang" help:"generate to documentation in README.md files"`
-		Build BuildCmd      `cmd:"" group:"golang" help:"compiles go code and export it for the local architecture"`
-		Cross CrossBuildCmd `cmd:"" group:"golang" help:"compiles go code and export it for multiple architectures"`
+		Build BuildCmd      `cmd:"" group:"golang" help:"compile go code and export it for the local architecture"`
+		Cross CrossBuildCmd `cmd:"" group:"golang" help:"compile go code and export it for multiple architectures"`
 	}
 
-	DepsCmd  struct{}
-	ModCmd   struct{}
-	TestCmd  struct{}
-	DocCmd   struct{}
+	DepsCmd struct{}
+	ModCmd  struct{}
+	TestCmd struct{}
+	DocCmd  struct {
+		Check bool `default:"false" short:"c" help:"check the documentation is up-to-date"`
+	}
 	BuildCmd struct {
 		In  string `arg:"" help:"directory to build"`
 		Out string `default:"dist" help:"directory where to export the binary"`
@@ -58,9 +60,12 @@ func (TestCmd) Run() error {
 	})
 }
 
-func (DocCmd) Run() error {
+func (cmd DocCmd) Run() error {
 	ctx := context.Background()
 	return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+		if cmd.Check {
+			return daggers.CheckGoDoc(ctx, c)
+		}
 		return daggers.GoDoc(ctx, c)
 	})
 }

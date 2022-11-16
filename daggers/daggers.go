@@ -119,3 +119,9 @@ func GoDoc(ctx context.Context, c *dagger.Client) error {
 	}
 	return nil
 }
+
+func CheckGoDoc(ctx context.Context, c *dagger.Client) error {
+	return dague.Exec(ctx, SourcesNoDeps(c), dagger.ContainerExecOpts{
+		Args: []string{"gomarkdoc", "-c", "-u", "-e", "-o", "{{.Dir}}/README.md", "./..."},
+	})
+}
