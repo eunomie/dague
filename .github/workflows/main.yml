@@ -10,7 +10,7 @@ on:
       - 'main'
 
 jobs:
-  govuln:
+  mage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,36 +21,51 @@ jobs:
           go-version: '1.19'
       - name: Install mage
         run: go install github.com/magefile/mage
+      - name: bootstrap binary
+        run: cd hack; mage -compile dague
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dague-bin
+          path: ./hack/dague
+
+  govuln:
+    needs: [mage]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v1
+      - run: docker run --rm --privileged tonistiigi/binfmt:latest --install all
+      - uses: actions/download-artifact@v2
+        with:
+          name: dague-bin
       - name: govulncheck
-        run: mage -d hack lint:govuln
+        run: chmod +x ./dague; ./dague lint:govuln
 
   gofumpt:
+    needs: [mage]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - uses: actions/setup-go@v3
+      - uses: actions/download-artifact@v2
         with:
-          go-version: '1.19'
-      - name: Install mage
-        run: go install github.com/magefile/mage
-      - name: govulncheck
-        run: mage -d hack gofumpt:print
+          name: dague-bin
+      - name: gofumpt
+        run: chmod +x ./dague; ./dague gofumpt:print
 
   build-cross:
+    needs: [mage]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - uses: actions/setup-go@v3
+      - uses: actions/download-artifact@v2
         with:
-          go-version: '1.19'
-      - name: Install mage
-        run: go install github.com/magefile/mage
-      - name: govulncheck
-        run: mage -d hack go:cross ./cmd/dague
+          name: dague-bin
+      - name: cross build binaries
+        run: chmod +x ./dague; ./dague go:cross ./cmd/dague
       - name: Upload artifacts
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
@@ -107,6 +122,7 @@ jobs:
       - uses: actions/download-artifact@v2
         if: github.event_name == 'push'
         with:
+          name: dague
           path: dist
       - name: Create a GitHub release
         if: github.event_name == 'push'
