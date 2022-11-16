@@ -27,9 +27,7 @@ import "github.com/eunomie/dague"
 ## Variables
 
 ```go
-var (
-    goModFiles = []string{"go.mod", "go.sum"}
-)
+var goModFiles = []string{"go.mod", "go.sum"}
 ```
 
 ## func ApkInstall
