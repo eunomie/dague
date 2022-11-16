@@ -21,19 +21,26 @@ func Base(c *dagger.Client) *dagger.Container {
 		Exec(dague.ApkInstall("build-base", "git")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
 		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest")).
-		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
+		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest")).
+		WithWorkdir(config.AppDir)
 }
 
 func GoDeps(c *dagger.Client) *dagger.Container {
 	return Base(c).
-		WithWorkdir(config.AppDir).
 		WithMountedDirectory(config.AppDir, dague.GoModFiles(c)).
 		Exec(dague.GoModDownload())
 }
 
+func sources(c *dagger.Client, cont *dagger.Container) *dagger.Container {
+	return cont.WithMountedDirectory(config.AppDir, c.Host().Workdir())
+}
+
 func Sources(c *dagger.Client) *dagger.Container {
-	return GoDeps(c).
-		WithMountedDirectory(config.AppDir, c.Host().Workdir())
+	return sources(c, GoDeps(c))
+}
+
+func SourcesNoDeps(c *dagger.Client) *dagger.Container {
+	return sources(c, Base(c))
 }
 
 func GoMod(c *dagger.Client) *dagger.Container {
@@ -75,7 +82,7 @@ func GoVulnCheck(ctx context.Context, c *dagger.Client) error {
 }
 
 func PrintGofmt(ctx context.Context, c *dagger.Client) error {
-	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
+	return dague.Exec(ctx, SourcesNoDeps(c), dagger.ContainerExecOpts{
 		Args: []string{"gofmt", "-d", "-e", "."},
 	})
 }
@@ -85,7 +92,7 @@ func ApplyGofmt(ctx context.Context, c *dagger.Client) error {
 }
 
 func PrintGofumpt(ctx context.Context, c *dagger.Client) error {
-	return dague.Exec(ctx, Sources(c), dagger.ContainerExecOpts{
+	return dague.Exec(ctx, SourcesNoDeps(c), dagger.ContainerExecOpts{
 		Args: []string{"gofumpt", "-d", "-e", "."},
 	})
 }
@@ -101,7 +108,7 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error {
 }
 
 func GoDoc(ctx context.Context, c *dagger.Client) error {
-	ok, err := Sources(c).Exec(dagger.ContainerExecOpts{
+	ok, err := SourcesNoDeps(c).Exec(dagger.ContainerExecOpts{
 		Args: []string{"gomarkdoc", "-u", "-e", "-o", "_godoc_/{{.Dir}}/README.md", "./..."},
 	}).Directory("./_godoc_").Export(ctx, ".")
 	if err != nil {

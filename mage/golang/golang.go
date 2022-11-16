@@ -43,7 +43,7 @@ func (Go) Doc(ctx context.Context) error {
 	})
 }
 
-// Local compiles go code from target and export it into dist/ folder for thelocal architecture
+// Local compiles go code from target and export it into dist/ folder for the local architecture
 func (Go) Local(ctx context.Context, target string) error {
 	return Local(ctx, types.LocalBuildOpts{
 		BuildOpts: types.BuildOpts{

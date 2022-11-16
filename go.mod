@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	dagger.io/dagger v0.4.0
+	github.com/alecthomas/kong v0.7.1
 	github.com/magefile/mage v1.14.0
 	golang.org/x/sync v0.1.0
 )
