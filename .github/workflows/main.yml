@@ -26,6 +26,19 @@ jobs:
           name: dague-bin
           path: ./hack/dague
 
+  godoc:
+    needs: [mage]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v1
+      - run: docker run --rm --privileged tonistiigi/binfmt:latest --install all
+      - uses: actions/download-artifact@v2
+        with:
+          name: dague-bin
+      - name: govulncheck
+        run: chmod +x ./dague; ./dague go doc -c
+
   govuln:
     needs: [mage]
     runs-on: ubuntu-latest
