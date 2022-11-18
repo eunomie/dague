@@ -13,6 +13,7 @@ import "github.com/eunomie/dague/daggers"
 - [func ApplyGofmt(ctx context.Context, c *dagger.Client) error](<#func-applygofmt>)
 - [func ApplyGofumpt(ctx context.Context, c *dagger.Client) error](<#func-applygofumpt>)
 - [func Base(c *dagger.Client) *dagger.Container](<#func-base>)
+- [func CheckGoDoc(ctx context.Context, c *dagger.Client) error](<#func-checkgodoc>)
 - [func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuildOpts) error](<#func-crossbuild>)
 - [func ExportGoMod(ctx context.Context, c *dagger.Client) error](<#func-exportgomod>)
 - [func GoDeps(c *dagger.Client) *dagger.Container](<#func-godeps>)
@@ -24,9 +25,11 @@ import "github.com/eunomie/dague/daggers"
 - [func PrintGofumpt(ctx context.Context, c *dagger.Client) error](<#func-printgofumpt>)
 - [func RunGoTests(ctx context.Context, c *dagger.Client) error](<#func-rungotests>)
 - [func Sources(c *dagger.Client) *dagger.Container](<#func-sources>)
+- [func SourcesNoDeps(c *dagger.Client) *dagger.Container](<#func-sourcesnodeps>)
 - [func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) error](<#func-applygoformatter>)
 - [func exportFiles(ctx context.Context, cont *dagger.Container, files []string) error](<#func-exportfiles>)
 - [func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
+- [func sources(c *dagger.Client, cont *dagger.Container) *dagger.Container](<#func-sources>)
 
 
 ## func ApplyGofmt
@@ -47,6 +50,16 @@ func ApplyGofumpt(ctx context.Context, c *dagger.Client) error
 func Base(c *dagger.Client) *dagger.Container
 ```
 
+Base is a default container based on a Golang build image \(see config.BuildImage\) on top of which is installed several packages and Go packages. The workdir is also set based on config.AppDir.
+
+This container is used as the root of many other commands, allowing to share cache as much as possible.
+
+## func CheckGoDoc
+
+```go
+func CheckGoDoc(ctx context.Context, c *dagger.Client) error
+```
+
 ## func CrossBuild
 
 ```go
@@ -64,6 +77,8 @@ func ExportGoMod(ctx context.Context, c *dagger.Client) error
 ```go
 func GoDeps(c *dagger.Client) *dagger.Container
 ```
+
+GoDeps mount the Go module files and download the needed dependencies.
 
 ## func GoDoc
 
@@ -113,6 +128,16 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error
 func Sources(c *dagger.Client) *dagger.Container
 ```
 
+Sources is a container based on GoDeps. It contains the Go source code but also all the needed dependencies from Go modules.
+
+## func SourcesNoDeps
+
+```go
+func SourcesNoDeps(c *dagger.Client) *dagger.Container
+```
+
+SourcesNoDeps is a container including all the source code, but without the Go modules downloaded. It can be helpful with projects where dependencies are vendored but also just minimise the number of steps when it's not required.
+
 ## func applyGoformatter
 
 ```go
@@ -129,6 +154,12 @@ func exportFiles(ctx context.Context, cont *dagger.Container, files []string) er
 
 ```go
 func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error
+```
+
+## func sources
+
+```go
+func sources(c *dagger.Client, cont *dagger.Container) *dagger.Container
 ```
 
 

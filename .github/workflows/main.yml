@@ -10,7 +10,7 @@ on:
       - 'main'
 
 jobs:
-  mage:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,53 +19,60 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '1.19'
-      - name: Install mage
-        run: go install github.com/magefile/mage
       - name: bootstrap binary
-        run: cd hack; mage -compile dague
+        run: go build -o dague ./cmd/dague
       - uses: actions/upload-artifact@v3
         with:
           name: dague-bin
-          path: ./hack/dague
+          path: ./dague
 
-  govuln:
-    needs: [mage]
+  godoc:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - run: docker run --rm --privileged tonistiigi/binfmt:latest --install all
       - uses: actions/download-artifact@v2
         with:
           name: dague-bin
-      - name: govulncheck
-        run: chmod +x ./dague; ./dague lint:govuln
+      - name: Check docs
+        run: chmod +x ./dague; ./dague go doc -c
 
-  gofumpt:
-    needs: [mage]
+  govuln:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - uses: docker/setup-buildx-action@v1
+      - uses: actions/download-artifact@v2
+        with:
+          name: dague-bin
+      - name: Check govuln
+        run: chmod +x ./dague; ./dague lint govuln
+
+  gofumpt:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v1
       - uses: actions/download-artifact@v2
         with:
           name: dague-bin
       - name: gofumpt
-        run: chmod +x ./dague; ./dague gofumpt:print
+        run: chmod +x ./dague; ./dague gofumpt print
 
   build-cross:
-    needs: [mage]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - uses: docker/setup-buildx-action@v1
       - uses: actions/download-artifact@v2
         with:
           name: dague-bin
-      - name: cross build binaries
-        run: chmod +x ./dague; ./dague go:cross ./cmd/dague
+      - name: Cross build binaries
+        run: chmod +x ./dague; ./dague go cross ./cmd/dague
       - name: Upload artifacts
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
@@ -75,15 +82,14 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
-    needs: [govuln, gofumpt, build-cross]
+    needs: [godoc, govuln, gofumpt, build-cross]
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        if: github.event_name != 'pull_request'
+      - if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}

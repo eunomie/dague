@@ -43,6 +43,13 @@ func (Go) Doc(ctx context.Context) error {
 	})
 }
 
+// CheckDoc verifies the documentation is up-to-date
+func (Go) CheckDoc(ctx context.Context) error {
+	return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+		return daggers.CheckGoDoc(ctx, c)
+	})
+}
+
 // Local compiles go code from target and export it into dist/ folder for the local architecture
 func (Go) Local(ctx context.Context, target string) error {
 	return Local(ctx, types.LocalBuildOpts{

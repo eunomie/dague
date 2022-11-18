@@ -13,8 +13,11 @@ import "github.com/eunomie/dague/mage/golang"
 - [func Cross(ctx context.Context, buildOpts types.CrossBuildOpts) error](<#func-cross>)
 - [func Local(ctx context.Context, buildOpts types.LocalBuildOpts) error](<#func-local>)
 - [type Go](<#type-go>)
+  - [func (Go) CheckDoc(ctx context.Context) error](<#func-go-checkdoc>)
+  - [func (Go) Cross(ctx context.Context, target string) error](<#func-go-cross>)
   - [func (Go) Deps(ctx context.Context) error](<#func-go-deps>)
   - [func (Go) Doc(ctx context.Context) error](<#func-go-doc>)
+  - [func (Go) Local(ctx context.Context, target string) error](<#func-go-local>)
   - [func (Go) Mod(ctx context.Context) error](<#func-go-mod>)
   - [func (Go) Test(ctx context.Context) error](<#func-go-test>)
 
@@ -25,7 +28,7 @@ import "github.com/eunomie/dague/mage/golang"
 func Cross(ctx context.Context, buildOpts types.CrossBuildOpts) error
 ```
 
-Cross cross compiles a go binary and export all of them
+Cross compiles a go binary for multiple platforms and export all of them
 
 ## func Local
 
@@ -33,13 +36,29 @@ Cross cross compiles a go binary and export all of them
 func Local(ctx context.Context, buildOpts types.LocalBuildOpts) error
 ```
 
-Local compile go code to a binary ane export it
+Local compiles go code to a binary ane export it
 
 ## type Go
 
 ```go
 type Go mg.Namespace
 ```
+
+### func \(Go\) CheckDoc
+
+```go
+func (Go) CheckDoc(ctx context.Context) error
+```
+
+CheckDoc verifies the documentation is up\-to\-date
+
+### func \(Go\) Cross
+
+```go
+func (Go) Cross(ctx context.Context, target string) error
+```
+
+Cross compiles go code from target and export it into dist/ for multiple architectures \(linux|darwin|windows\)/\(amd64|arm64\)
 
 ### func \(Go\) Deps
 
@@ -56,6 +75,14 @@ func (Go) Doc(ctx context.Context) error
 ```
 
 Doc generates go documentation in README.md files
+
+### func \(Go\) Local
+
+```go
+func (Go) Local(ctx context.Context, target string) error
+```
+
+Local compiles go code from target and export it into dist/ folder for the local architecture
 
 ### func \(Go\) Mod
 
