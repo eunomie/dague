@@ -155,3 +155,16 @@ func ExportGoMod(ctx context.Context, cont *dagger.Container, contDir, exportDir
 	}
 	return nil
 }
+
+func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error {
+	ok, err := cont.Exec(dagger.ContainerExecOpts{
+		Args: []string{"sh", "-c", fmt.Sprintf("find . -name '%s' | cpio -pdm __export_dague__", pattern)},
+	}).Directory("./__export_dague__").Export(ctx, path)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("could not export %s to %s", pattern, path)
+	}
+	return nil
+}
