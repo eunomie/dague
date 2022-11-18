@@ -50,6 +50,10 @@ func ApplyGofumpt(ctx context.Context, c *dagger.Client) error
 func Base(c *dagger.Client) *dagger.Container
 ```
 
+Base is a default container based on a Golang build image \(see config.BuildImage\) on top of which is installed several packages and Go packages. The workdir is also set based on config.AppDir.
+
+This container is used as the root of many other commands, allowing to share cache as much as possible.
+
 ## func CheckGoDoc
 
 ```go
@@ -73,6 +77,8 @@ func ExportGoMod(ctx context.Context, c *dagger.Client) error
 ```go
 func GoDeps(c *dagger.Client) *dagger.Container
 ```
+
+GoDeps mount the Go module files and download the needed dependencies.
 
 ## func GoDoc
 
@@ -122,11 +128,15 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error
 func Sources(c *dagger.Client) *dagger.Container
 ```
 
+Sources is a container based on GoDeps. It contains the Go source code but also all the needed dependencies from Go modules.
+
 ## func SourcesNoDeps
 
 ```go
 func SourcesNoDeps(c *dagger.Client) *dagger.Container
 ```
+
+SourcesNoDeps is a container including all the source code, but without the Go modules downloaded. It can be helpful with projects where dependencies are vendored but also just minimise the number of steps when it's not required.
 
 ## func applyGoformatter
 
