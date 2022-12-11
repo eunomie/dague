@@ -4,130 +4,39 @@ Build Go projects, better. Based on [`dagger`](https://dagger.io).
 
 ## Why?
 
-Especially when you're working on multiple projects, there's always the question of the tooling, the different version
+`dague` is a `docker` cli plugin. It acts as a opinionated Go toolchain only relying on Docker as dependency.
+
+You don't need to have the right version of Go or any other dependencies, if you have Docker you have everything.
+
+
+
+Especially when you're working on multiple projects, there's always the question of the tooling, the different versions
 of all the tools, do you have all the needed requirements, etc.
 
-## Usage in Other Projects
+## Usage
 
-You can use the default `dague` generated tool from the GitHub release page. It will give you the basic, the default tools.
-You just have to copy it and run it.
+Just drop `docker-dague` binary in your `~/.docker/cli-plugin` directory and you're setup.
 
-But it has been done in a way to be easily extensible to support your own project. For instance, maybe you have a specific
-target to build. Or you need to set some variable. Or anything else.
-
-One of the key idea behind `dague` is to be a helper to build your own custom tool, for your own need. You just have to
-pick the targets you want, and add yours.
-
-Two different integrations are provided by default:
-
-- one based on `kong`, to build CLIs easily
-- one based on `mage`, if you want something more `make` style
-
-### Kong
-
-[`kong`](./kong) package and sub packages provides you commands and sub commands to build your own CLI.
-
-For instance, look at [`cmd/dague/main.go`](./cmd/dague/main.go) to see how to create a CLI with the default targets:
-
-```go
-package main
-
-import (
-	"github.com/eunomie/dague/kong"
-	"github.com/eunomie/dague/kong/gofumpt"
-	"github.com/eunomie/dague/kong/golang"
-	"github.com/eunomie/dague/kong/lint"
-)
-
-type (
-	CLI struct {
-		Lint    lint.Lint       `cmd:""`
-		Gofumpt gofumpt.Gofumpt `cmd:""`
-		Go      golang.Golang   `cmd:""`
-	}
-)
-
-func main() {
-	kong.Run(&CLI{})
-}
 ```
+❯ docker dague --help
 
-That's all you need to have this CLI:
+Usage:  docker dague COMMAND
 
-```text
-Usage: dague <command>
+Docker Dague
 
-Flags:
-  -h, --help    Show context-sensitive help.
+Commands:
+  fmt:print   Print result of gofumpt
+  fmt:write   Write result of gofumpt to existing files
+  go:build    Compile go code and export it for the local architecture
+  go:cross    Compile go code and export it for multiple architectures
+  go:deps     Download go modules
+  go:doc      Generate Go documentation into readme files
+  go:mod      Run go mod tidy and export go.mod and go.sum files
+  go:test     Run go tests
+  lint:govuln Lint Go code using govulncheck
+  version     Print version
 
-lint
-  lint govuln
-    checks vulnerabilities in Go code
-
-gofumpt
-  gofumpt print
-    print result of gofumpt
-
-  gofumpt write
-    write result of gofumpt to existing files
-
-golang
-  go deps
-    download go modules
-
-  go mod
-    run go mod tidy and export go.mod and go.sum files
-
-  go test
-    run go tests
-
-  go doc
-    generate to documentation in README.md files
-
-  go build <in>
-    compile go code and export it for the local architecture
-
-  go cross <in>
-    compile go code and export it for multiple architectures
-
-Run "dague <command> --help" for more information on a command.
-```
-
-### Mage
-
-The same way as with `kong`, you can create your own tool using `mage`.
-
-Here is a `magefile` example that will provide all the default tools:
-
-```go
-//go:build mage
-
-package main
-
-import (
-	//mage:import
-	_ "github.com/eunomie/dague/mage/golang"
-	//mage:import
-	_ "github.com/eunomie/dague/mage/lint"
-	//mage:import
-	_ "github.com/eunomie/dague/mage/gofumpt"
-)
-```
-
-And here is the corresponding mage targets:
-
-```text
-Targets:
-  go:checkDoc      verifies the documentation is up-to-date
-  go:cross         compiles go code from target and export it into dist/ for multiple architectures (linux|darwin|windows)/(amd64|arm64)
-  go:deps          downloads go modules
-  go:doc           generates go documentation in README.md files
-  go:local         compiles go code from target and export it into dist/ folder for the local architecture
-  go:mod           runs go mod tidy and export go.mod and go.sum files
-  go:test          runs go tests
-  gofumpt:print    runs gofumpt and print the recommended changes
-  gofumpt:write    runs gofumpt and write the recommended changes
-  lint:govuln      checks vulnerabilities in Go code
+Run 'docker dague COMMAND --help' for more information on a command.
 ```
 
 <!-- gomarkdoc:embed:start -->
@@ -148,6 +57,7 @@ import "github.com/eunomie/dague"
 - [func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error](<#func-exec>)
 - [func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error)](<#func-execcont>)
 - [func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error)](<#func-execout>)
+- [func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error](<#func-exportfilepattern>)
 - [func ExportGoMod(ctx context.Context, cont *dagger.Container, contDir, exportDir string) error](<#func-exportgomod>)
 - [func GoInstall(packages ...string) dagger.ContainerExecOpts](<#func-goinstall>)
 - [func GoModDownload() dagger.ContainerExecOpts](<#func-gomoddownload>)
@@ -226,6 +136,12 @@ ExecOut runs the specified command and return the content of stdout and stderr. 
 stdout, stderr, err := dague.ExecOut(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
     Args: []string{"go", "build"},
 })
+```
+
+## func ExportFilePattern
+
+```go
+func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error
 ```
 
 ## func ExportGoMod

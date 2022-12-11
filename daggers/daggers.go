@@ -119,21 +119,14 @@ func RunGoTests(ctx context.Context, c *dagger.Client) error {
 }
 
 func GoDoc(ctx context.Context, c *dagger.Client) error {
-	ok, err := SourcesNoDeps(c).
-		Exec(dagger.ContainerExecOpts{
+	return dague.ExportFilePattern(
+		ctx,
+		SourcesNoDeps(c).Exec(dagger.ContainerExecOpts{
 			Args: []string{"gomarkdoc", "-u", "-e", "-o", "{{.Dir}}/README.md", "./..."},
-		}).
-		Exec(dagger.ContainerExecOpts{
-			Args: []string{"sh", "-c", "find . -name '*.md' | cpio -pdm _godoc_"},
-		}).
-		Directory("./_godoc_").Export(ctx, ".")
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return fmt.Errorf("could not export go documentation")
-	}
-	return nil
+		}),
+		"*.md",
+		".",
+	)
 }
 
 func CheckGoDoc(ctx context.Context, c *dagger.Client) error {
