@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"path"
 	"runtime"
-
-	"github.com/eunomie/dague/config"
-
-	"github.com/eunomie/dague/types"
-	"golang.org/x/sync/errgroup"
+	"strings"
 
 	"dagger.io/dagger"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/eunomie/dague"
+	"github.com/eunomie/dague/config"
+	"github.com/eunomie/dague/types"
 )
 
 // Base is a default container based on a Golang build image (see config.BuildImage) on top of which is installed several
@@ -25,6 +25,7 @@ func Base(c *dagger.Client) *dagger.Container {
 		From(config.BuildImage).
 		Exec(dague.ApkInstall("build-base", "git")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
+		Exec(dague.GoInstall("golang.org/x/tools/cmd/goimports@latest")).
 		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest")).
 		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest")).
 		WithWorkdir(config.AppDir)
@@ -56,22 +57,23 @@ func SourcesNoDeps(c *dagger.Client) *dagger.Container {
 
 func GoMod(c *dagger.Client) *dagger.Container {
 	return Sources(c).
+		WithWorkdir(config.AppDir).
 		Exec(dague.GoModTidy())
 }
 
 func ExportGoMod(ctx context.Context, c *dagger.Client) error {
-	return dague.ExportGoMod(ctx, GoMod(c), config.AppDir, "./")
+	return dague.ExportFilePattern(ctx, GoMod(c), "go.*", "./")
 }
 
 func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error {
 	file := path.Join(buildOpts.Dir, buildOpts.Out)
-	return goBuild(ctx, Sources(c), runtime.GOOS, runtime.GOARCH, buildOpts.BuildOpts, file)
+	return goBuild(ctx, Sources(c).WithWorkdir(buildOpts.Dir), runtime.GOOS, runtime.GOARCH, buildOpts.BuildOpts, file)
 }
 
 func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuildOpts) error {
 	g, ctx := errgroup.WithContext(ctx)
 
-	src := Sources(c)
+	src := Sources(c).WithWorkdir(buildOpts.Dir)
 
 	for _, platform := range buildOpts.Platforms {
 		goos := platform.OS
@@ -92,24 +94,55 @@ func GoVulnCheck(ctx context.Context, c *dagger.Client) error {
 		})
 }
 
-func PrintGofmt(ctx context.Context, c *dagger.Client) error {
-	return dague.Exec(ctx, SourcesNoDeps(c), dagger.ContainerExecOpts{
-		Args: []string{"gofmt", "-d", "-e", "."},
-	})
+func PrintGoformatter(ctx context.Context, c *dagger.Client, formatter string) error {
+	return dague.Exec(ctx, SourcesNoDeps(c), formatPrint(formatter))
 }
 
-func ApplyGofmt(ctx context.Context, c *dagger.Client) error {
-	return applyGoformatter(ctx, c, "gofmt")
+func ApplyGoformatter(ctx context.Context, c *dagger.Client, formatter string) error {
+	return dague.ExportFilePattern(
+		ctx,
+		Sources(c).Exec(formatWrite(formatter)),
+		"*.go",
+		"./",
+	)
 }
 
-func PrintGofumpt(ctx context.Context, c *dagger.Client) error {
-	return dague.Exec(ctx, SourcesNoDeps(c), dagger.ContainerExecOpts{
-		Args: []string{"gofumpt", "-d", "-e", "."},
-	})
+func ApplyFormatAndImports(ctx context.Context, c *dagger.Client, formatter string, locals []string) error {
+	return dague.ExportFilePattern(
+		ctx,
+		Sources(c).Exec(goImports(locals)).Exec(formatWrite(formatter)),
+		"*.go",
+		"./",
+	)
 }
 
-func ApplyGofumpt(ctx context.Context, c *dagger.Client) error {
-	return applyGoformatter(ctx, c, "gofumpt")
+func goImports(locals []string) dagger.ContainerExecOpts {
+	args := []string{"goimports", "-w", "-format-only"}
+	if len(locals) > 0 {
+		args = append(args, "-local", strings.Join(locals, ","))
+	}
+	args = append(args, ".")
+	return dagger.ContainerExecOpts{Args: args}
+}
+
+func formatWrite(formatter string) dagger.ContainerExecOpts {
+	return dagger.ContainerExecOpts{
+		Args: []string{formatter, "-w", "."},
+	}
+}
+
+func formatPrint(formatter string) dagger.ContainerExecOpts {
+	return dagger.ContainerExecOpts{
+		Args: []string{formatter, "-d", "-e", "."},
+	}
+}
+
+func GoImports(ctx context.Context, c *dagger.Client, locals []string) error {
+	return dague.ExportFilePattern(
+		ctx,
+		SourcesNoDeps(c).Exec(goImports(locals)),
+		"*.go",
+		"./")
 }
 
 func RunGoTests(ctx context.Context, c *dagger.Client) error {

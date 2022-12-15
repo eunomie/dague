@@ -1,0 +1,43 @@
+# Configuration of the code formatter to use
+fmt:
+  # The tool to use. Default if gofmt, other possible value is gofumpt
+  tool: gofumpt
+
+lint:
+  govulncheck:
+    enable: true
+  golangci:
+    enable: true
+    image: golangci/golangci-lint:v1.50.1
+
+# Go configuration
+go:
+  # Image used to build and run almost everything
+  image: golang:1.19.4-alpine3.17
+  # Directory where to mount the local folder
+  appDir: /go/src
+  # List of (sub)folders that are go modules (to download, tidy)
+  modules:
+    - path: .
+      files: ["go.mod", "go.sum"]
+    - path: ./cmd/docker-dague
+      files: ["go.mod", "go.sum"]
+  # List of targets to build, with parameters
+  targets:
+    - name: local
+      type: local
+      path: ./cmd/docker-dague
+      out: ./dist
+      ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${DAGUE_SET_VERSION:-dev}'
+    - name: cross
+      type: cross
+      path: ./cmd/docker-dague
+      out: ./dist
+      ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${DAGUE_SET_VERSION:-dev}'
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - darwin/amd64
+        - darwin/arm64
+        - windows/amd64
+        - windows/arm64

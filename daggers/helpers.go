@@ -6,31 +6,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/eunomie/dague/config"
-
-	"github.com/eunomie/dague/types"
-
 	"dagger.io/dagger"
-	"github.com/eunomie/dague"
+
+	"github.com/eunomie/dague/config"
+	"github.com/eunomie/dague/types"
 )
-
-func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) error {
-	list, _, err := dague.ExecOut(ctx, Sources(c), dagger.ContainerExecOpts{
-		Args: []string{formatter, "-l", "."},
-	})
-	if err != nil {
-		return err
-	}
-
-	cont, err := dague.ExecCont(ctx, Sources(c), dagger.ContainerExecOpts{
-		Args: []string{formatter, "-w", "."},
-	})
-	if err != nil {
-		return err
-	}
-
-	return exportFiles(ctx, cont, strings.Split(list, "\n"))
-}
 
 func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error {
 	var (

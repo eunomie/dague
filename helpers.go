@@ -141,21 +141,6 @@ func GoModTidy() dagger.ContainerExecOpts {
 	}
 }
 
-// ExportGoMod reads the default go mod tiles from the specified internal dir and export them to the host.
-func ExportGoMod(ctx context.Context, cont *dagger.Container, contDir, exportDir string) error {
-	for _, f := range goModFiles {
-		file := fmt.Sprintf("%s/%s", contDir, f)
-		ok, err := cont.File(file).Export(ctx, exportDir+f)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return errors.New("could not export " + file)
-		}
-	}
-	return nil
-}
-
 func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error {
 	ok, err := cont.Exec(dagger.ContainerExecOpts{
 		Args: []string{"sh", "-c", fmt.Sprintf("find . -name '%s' | cpio -pdm __export_dague__", pattern)},

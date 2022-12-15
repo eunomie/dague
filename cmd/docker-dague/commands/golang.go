@@ -1,31 +1,33 @@
 package commands
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/eunomie/dague"
-	"github.com/eunomie/dague/daggers"
-	"github.com/eunomie/dague/types"
-
 	"dagger.io/dagger"
 	"github.com/spf13/cobra"
+
+	"github.com/eunomie/dague"
+	"github.com/eunomie/dague/config"
+	"github.com/eunomie/dague/daggers"
+	"github.com/eunomie/dague/types"
 )
 
-var (
-	// GoCommands contains all commands related to Go like modules management or build.
-	GoCommands = []*cobra.Command{
-		GoDeps(),
-		GoMod(),
+// GoCommands contains all commands related to Go like modules management or build.
+func GoCommands(opts *config.Dague) []*cobra.Command {
+	return []*cobra.Command{
+		GoDeps(opts),
+		GoMod(opts),
 		GoTest(),
 		GoDoc(),
-		GoBuild(),
-		GoCrossBuild(),
+		GoBuild(opts),
 	}
-)
+}
 
 // GoDeps is a command to download go modules.
-func GoDeps() *cobra.Command {
+func GoDeps(_ *config.Dague) *cobra.Command {
 	return &cobra.Command{
 		Use:   "go:deps",
 		Short: "Download go modules",
@@ -41,15 +43,18 @@ func GoDeps() *cobra.Command {
 }
 
 // GoMod is a command to run go mod tidy and export go.mod and go.sum files.
-func GoMod() *cobra.Command {
+func GoMod(opts *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "go:mod",
+		Use:   "go:mod MODULES...",
 		Short: "Run go mod tidy and export go.mod and go.sum files",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
-				return daggers.ExportGoMod(ctx, c)
+				if err := daggers.ExportGoMod(ctx, c); err != nil {
+					return err
+				}
+				return nil
 			})
 		},
 	}
@@ -100,97 +105,70 @@ func GoDoc() *cobra.Command {
 	return cmd
 }
 
-type goBuildOptions struct {
-	out     string
-	ldflags string
-}
-
 // GoBuild is a command to build a Go binary based on the local architecture.
-func GoBuild() *cobra.Command {
-	opts := goBuildOptions{}
-
+func GoBuild(opts *config.Dague) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "go:build [OPTIONS] DIRECTORY",
+		Use:   "go:build [OPTIONS] TARGET",
 		Short: "Compile go code and export it for the local architecture",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			var targetName = args[0]
+			var target config.Target
+			var ok bool
+			for _, t := range opts.Go.Build.Targets {
+				if t.Name == targetName {
+					target = t
+					ok = true
+					break
+				}
+			}
+			if !ok {
+				return fmt.Errorf("could not find the target %q to build", targetName)
+			}
+
 			var buildFlags []string
-			if opts.ldflags != "" {
-				buildFlags = append(buildFlags, "-ldflags="+opts.ldflags)
+			if target.Ldflags != "" {
+				buildFlags = append(buildFlags, "-ldflags="+os.ExpandEnv(target.Ldflags))
 			}
 			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
-				return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
-					BuildOpts: types.BuildOpts{
-						Dir: opts.out,
-						In:  args[0],
-						EnvVars: map[string]string{
-							"CGO_ENABLED": "0",
-							"GO11MODULE":  "auto",
+				if target.Type == "local" {
+					return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
+						BuildOpts: types.BuildOpts{
+							Dir: target.Out,
+							In:  target.Path,
+							EnvVars: map[string]string{
+								"CGO_ENABLED": "0",
+								"GO11MODULE":  "auto",
+							},
+							BuildFlags: buildFlags,
 						},
-						BuildFlags: buildFlags,
-					},
-					Out: filepath.Base(args[0]),
-				})
+						Out: filepath.Base(target.Path),
+					})
+				} else {
+					var platforms []types.Platform
+					for _, p := range target.Platforms {
+						t := strings.SplitN(p, "/", 2)
+						platforms = append(platforms, types.Platform{OS: t[0], Arch: t[1]})
+					}
+					return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
+						BuildOpts: types.BuildOpts{
+							Dir: target.Out,
+							In:  target.Path,
+							EnvVars: map[string]string{
+								"CGO_ENABLED": "0",
+								"GO11MODULE":  "auto",
+							},
+							BuildFlags: buildFlags,
+						},
+						OutFileFormat: filepath.Base(target.Path) + "_%s_%s",
+						Platforms:     platforms,
+					})
+				}
 			})
 		},
 	}
-
-	flags := cmd.Flags()
-	flags.StringVarP(&opts.out, "out", "o", "dist", "directory where to export the binary")
-	flags.StringVar(&opts.ldflags, "ldflags", "", "arguments to pass on each go tool link invocation")
-
-	return cmd
-}
-
-type goCrossBuildOptions struct {
-	out       string
-	platforms []string
-	ldflags   string
-}
-
-// GoCrossBuild is a command to perform cross compilation and generate Go binaries for multiple platforms.
-func GoCrossBuild() *cobra.Command {
-	opts := goCrossBuildOptions{}
-
-	cmd := &cobra.Command{
-		Use:   "go:cross [OPTIONS] DIRECTORY",
-		Short: "Compile go code and export it for multiple architectures",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
-			var platforms []types.Platform
-			for _, p := range opts.platforms {
-				t := strings.SplitN(p, "/", 2)
-				platforms = append(platforms, types.Platform{OS: t[0], Arch: t[1]})
-			}
-			var buildFlags []string
-			if opts.ldflags != "" {
-				buildFlags = append(buildFlags, "-ldflags="+opts.ldflags)
-			}
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
-				return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
-					BuildOpts: types.BuildOpts{
-						Dir: opts.out,
-						In:  args[0],
-						EnvVars: map[string]string{
-							"CGO_ENABLED": "0",
-							"GO11MODULE":  "auto",
-						},
-						BuildFlags: buildFlags,
-					},
-					OutFileFormat: filepath.Base(args[0]) + "_%s_%s",
-					Platforms:     platforms,
-				})
-			})
-		},
-	}
-
-	defaultPlatforms := []string{"linux/amd64", "linux/arm64", "darwin/amd64", "darwin/arm64", "windows/amd64", "windows/arm64"}
-	flags := cmd.Flags()
-	flags.StringVarP(&opts.out, "out", "o", "dist", "directory where to export the binary")
-	flags.StringArrayVarP(&opts.platforms, "platform", "p", defaultPlatforms, "platform to build the binary")
-	flags.StringVar(&opts.ldflags, "ldflags", "", "arguments to pass on each go tool link invocation")
 
 	return cmd
 }
