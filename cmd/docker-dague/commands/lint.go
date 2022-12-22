@@ -14,6 +14,7 @@ func LintCommands(conf *config.Dague) []*cobra.Command {
 	return []*cobra.Command{
 		Lint(conf),
 		LintGovuln(conf),
+		LintGolangCILint(conf),
 	}
 }
 
@@ -54,6 +55,23 @@ func LintGovuln(conf *config.Dague) *cobra.Command {
 					return fmt.Errorf("govulncheck must be enabled")
 				}
 				return daggers.GoVulnCheck(ctx, c)
+			})
+		},
+	}
+}
+
+func LintGolangCILint(conf *config.Dague) *cobra.Command {
+	return &cobra.Command{
+		Use:   "lint:golangci",
+		Short: "Lint Go code",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := cmd.Context()
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
+				if !conf.Go.Lint.Golangci.Enable {
+					return fmt.Errorf("golangci-lint must be enabled")
+				}
+				return daggers.GolangCILint(ctx, c)
 			})
 		},
 	}

@@ -144,26 +144,25 @@ func GoBuild(conf *config.Dague) *cobra.Command {
 						},
 						Out: filepath.Base(target.Path),
 					})
-				} else {
-					var platforms []types.Platform
-					for _, p := range target.Platforms {
-						t := strings.SplitN(p, "/", 2)
-						platforms = append(platforms, types.Platform{OS: t[0], Arch: t[1]})
-					}
-					return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
-						BuildOpts: types.BuildOpts{
-							Dir: target.Out,
-							In:  target.Path,
-							EnvVars: map[string]string{
-								"CGO_ENABLED": "0",
-								"GO11MODULE":  "auto",
-							},
-							BuildFlags: buildFlags,
-						},
-						OutFileFormat: filepath.Base(target.Path) + "_%s_%s",
-						Platforms:     platforms,
-					})
 				}
+				var platforms []types.Platform
+				for _, p := range target.Platforms {
+					t := strings.SplitN(p, "/", 2)
+					platforms = append(platforms, types.Platform{OS: t[0], Arch: t[1]})
+				}
+				return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
+					BuildOpts: types.BuildOpts{
+						Dir: target.Out,
+						In:  target.Path,
+						EnvVars: map[string]string{
+							"CGO_ENABLED": "0",
+							"GO11MODULE":  "auto",
+						},
+						BuildFlags: buildFlags,
+					},
+					OutFileFormat: filepath.Base(target.Path) + "_%s_%s",
+					Platforms:     platforms,
+				})
 			})
 		},
 	}
