@@ -10,18 +10,134 @@ import "github.com/eunomie/dague/config"
 
 ## Index
 
+- [Constants](<#constants>)
 - [Variables](<#variables>)
+- [type Build](<#type-build>)
+- [type Dague](<#type-dague>)
+  - [func Load() (Dague, error)](<#func-load>)
+- [type Env](<#type-env>)
+- [type Fmt](<#type-fmt>)
+- [type Go](<#type-go>)
+- [type Goimports](<#type-goimports>)
+- [type Golangci](<#type-golangci>)
+- [type Govulncheck](<#type-govulncheck>)
+- [type Lint](<#type-lint>)
+- [type Target](<#type-target>)
 
+
+## Constants
+
+```go
+const (
+    defaultConfigFile = ".dague.yml"
+)
+```
 
 ## Variables
 
+go:embed .dague.default.yml
+
 ```go
-var (
-    // BuildImage is the base Golang docker image used to run all the tools.
-    BuildImage = "golang:1.19.4-alpine3.17"
-    // AppDir is the default local to the container folder where to copy/mount sources.
-    AppDir = "/go/src"
-)
+var defaults []byte
+```
+
+## type Build
+
+```go
+type Build struct {
+    Targets []Target `yaml:"targets"`
+}
+```
+
+## type Dague
+
+```go
+type Dague struct {
+    Go Go `yaml:"go"`
+}
+```
+
+### func Load
+
+```go
+func Load() (Dague, error)
+```
+
+## type Env
+
+```go
+type Env struct {
+    CGOENABLED int `yaml:"CGO_ENABLED"`
+}
+```
+
+## type Fmt
+
+```go
+type Fmt struct {
+    Formatter string    `yaml:"formatter"`
+    Goimports Goimports `yaml:"goimports"`
+}
+```
+
+## type Go
+
+```go
+type Go struct {
+    Image  string `yaml:"image"`
+    AppDir string `yaml:"appDir"`
+    Fmt    Fmt    `yaml:"fmt"`
+    Lint   Lint   `yaml:"lint"`
+    Build  Build  `yaml:"build"`
+}
+```
+
+## type Goimports
+
+```go
+type Goimports struct {
+    Locals []string `yaml:"locals"`
+}
+```
+
+## type Golangci
+
+```go
+type Golangci struct {
+    Enable bool   `yaml:"enable"`
+    Image  string `yaml:"image"`
+}
+```
+
+## type Govulncheck
+
+```go
+type Govulncheck struct {
+    Enable bool `yaml:"enable"`
+}
+```
+
+## type Lint
+
+```go
+type Lint struct {
+    Govulncheck Govulncheck `yaml:"govulncheck"`
+    Golangci    Golangci    `yaml:"golangci"`
+}
+```
+
+## type Target
+
+```go
+type Target struct {
+    Name      string   `yaml:"name"`
+    Type      string   `yaml:"type"`
+    Path      string   `yaml:"path"`
+    Out       string   `yaml:"out"`
+    Env       Env      `yaml:"env"`
+    Ldflags   string   `yaml:"ldflags"`
+    Platforms []string `yaml:"platforms,omitempty"`
+}
 ```
 
 

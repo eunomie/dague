@@ -10,69 +10,43 @@ import "github.com/eunomie/dague/cmd/docker-dague/commands"
 
 ## Index
 
-- [Variables](<#variables>)
-- [func FmtPrint() *cobra.Command](<#func-fmtprint>)
-- [func FmtWrite() *cobra.Command](<#func-fmtwrite>)
-- [func GoBuild() *cobra.Command](<#func-gobuild>)
-- [func GoCrossBuild() *cobra.Command](<#func-gocrossbuild>)
-- [func GoDeps() *cobra.Command](<#func-godeps>)
-- [func GoDoc() *cobra.Command](<#func-godoc>)
-- [func GoMod() *cobra.Command](<#func-gomod>)
-- [func GoTest() *cobra.Command](<#func-gotest>)
-- [func LintGovuln() *cobra.Command](<#func-lintgovuln>)
+- [func Fmt(conf *config.Dague) *cobra.Command](<#func-fmt>)
+- [func FmtCommands(conf *config.Dague) []*cobra.Command](<#func-fmtcommands>)
+- [func FmtPrint(conf *config.Dague) *cobra.Command](<#func-fmtprint>)
+- [func FmtWrite(conf *config.Dague) *cobra.Command](<#func-fmtwrite>)
+- [func GoBuild(conf *config.Dague) *cobra.Command](<#func-gobuild>)
+- [func GoCommands(conf *config.Dague) []*cobra.Command](<#func-gocommands>)
+- [func GoDeps(conf *config.Dague) *cobra.Command](<#func-godeps>)
+- [func GoDoc(conf *config.Dague) *cobra.Command](<#func-godoc>)
+- [func GoImports(conf *config.Dague) *cobra.Command](<#func-goimports>)
+- [func GoMod(conf *config.Dague) *cobra.Command](<#func-gomod>)
+- [func GoTest(conf *config.Dague) *cobra.Command](<#func-gotest>)
+- [func Lint(conf *config.Dague) *cobra.Command](<#func-lint>)
+- [func LintCommands(conf *config.Dague) []*cobra.Command](<#func-lintcommands>)
+- [func LintGovuln(conf *config.Dague) *cobra.Command](<#func-lintgovuln>)
 - [func Version() *cobra.Command](<#func-version>)
-- [type goBuildOptions](<#type-gobuildoptions>)
-- [type goCrossBuildOptions](<#type-gocrossbuildoptions>)
+- [func VersionCommands(_ *config.Dague) []*cobra.Command](<#func-versioncommands>)
 - [type goDocOptions](<#type-godocoptions>)
 
 
-## Variables
+## func Fmt
 
 ```go
-var (
-    // FmtCommands contains all commands related to code formatting
-    FmtCommands = []*cobra.Command{
-        FmtPrint(),
-        FmtWrite(),
-    }
-)
+func Fmt(conf *config.Dague) *cobra.Command
 ```
 
-```go
-var (
-    // GoCommands contains all commands related to Go like modules management or build.
-    GoCommands = []*cobra.Command{
-        GoDeps(),
-        GoMod(),
-        GoTest(),
-        GoDoc(),
-        GoBuild(),
-        GoCrossBuild(),
-    }
-)
-```
+## func FmtCommands
 
 ```go
-var (
-    // LintCommands contains all commands related to linters.
-    LintCommands = []*cobra.Command{
-        LintGovuln(),
-    }
-)
+func FmtCommands(conf *config.Dague) []*cobra.Command
 ```
 
-```go
-var (
-    VersionCommands = []*cobra.Command{
-        Version(),
-    }
-)
-```
+FmtCommands contains all commands related to code formatting
 
 ## func FmtPrint
 
 ```go
-func FmtPrint() *cobra.Command
+func FmtPrint(conf *config.Dague) *cobra.Command
 ```
 
 FmtPrint is a command to print the result of Go formatter. Files will not be modified.
@@ -80,7 +54,7 @@ FmtPrint is a command to print the result of Go formatter. Files will not be mod
 ## func FmtWrite
 
 ```go
-func FmtWrite() *cobra.Command
+func FmtWrite(conf *config.Dague) *cobra.Command
 ```
 
 FmtWrite is a command to write to the existing files the result of the Go formatter.
@@ -88,23 +62,23 @@ FmtWrite is a command to write to the existing files the result of the Go format
 ## func GoBuild
 
 ```go
-func GoBuild() *cobra.Command
+func GoBuild(conf *config.Dague) *cobra.Command
 ```
 
 GoBuild is a command to build a Go binary based on the local architecture.
 
-## func GoCrossBuild
+## func GoCommands
 
 ```go
-func GoCrossBuild() *cobra.Command
+func GoCommands(conf *config.Dague) []*cobra.Command
 ```
 
-GoCrossBuild is a command to perform cross compilation and generate Go binaries for multiple platforms.
+GoCommands contains all commands related to Go like modules management or build.
 
 ## func GoDeps
 
 ```go
-func GoDeps() *cobra.Command
+func GoDeps(conf *config.Dague) *cobra.Command
 ```
 
 GoDeps is a command to download go modules.
@@ -112,15 +86,21 @@ GoDeps is a command to download go modules.
 ## func GoDoc
 
 ```go
-func GoDoc() *cobra.Command
+func GoDoc(conf *config.Dague) *cobra.Command
 ```
 
 GoDoc is a command generating Go documentation into readme.md files.
 
+## func GoImports
+
+```go
+func GoImports(conf *config.Dague) *cobra.Command
+```
+
 ## func GoMod
 
 ```go
-func GoMod() *cobra.Command
+func GoMod(conf *config.Dague) *cobra.Command
 ```
 
 GoMod is a command to run go mod tidy and export go.mod and go.sum files.
@@ -128,15 +108,31 @@ GoMod is a command to run go mod tidy and export go.mod and go.sum files.
 ## func GoTest
 
 ```go
-func GoTest() *cobra.Command
+func GoTest(conf *config.Dague) *cobra.Command
 ```
 
 GoTest is a command running Go tests.
 
+## func Lint
+
+```go
+func Lint(conf *config.Dague) *cobra.Command
+```
+
+Lint is a command running all configured linters.
+
+## func LintCommands
+
+```go
+func LintCommands(conf *config.Dague) []*cobra.Command
+```
+
+LintCommands contains all commands related to linters.
+
 ## func LintGovuln
 
 ```go
-func LintGovuln() *cobra.Command
+func LintGovuln(conf *config.Dague) *cobra.Command
 ```
 
 LintGovuln is a command running govulncheck against the Go source code.
@@ -147,23 +143,10 @@ LintGovuln is a command running govulncheck against the Go source code.
 func Version() *cobra.Command
 ```
 
-## type goBuildOptions
+## func VersionCommands
 
 ```go
-type goBuildOptions struct {
-    out     string
-    ldflags string
-}
-```
-
-## type goCrossBuildOptions
-
-```go
-type goCrossBuildOptions struct {
-    out       string
-    platforms []string
-    ldflags   string
-}
+func VersionCommands(_ *config.Dague) []*cobra.Command
 ```
 
 ## type goDocOptions

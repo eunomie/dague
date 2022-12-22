@@ -10,72 +10,88 @@ import "github.com/eunomie/dague/daggers"
 
 ## Index
 
-- [func ApplyGofmt(ctx context.Context, c *dagger.Client) error](<#func-applygofmt>)
-- [func ApplyGofumpt(ctx context.Context, c *dagger.Client) error](<#func-applygofumpt>)
-- [func Base(c *dagger.Client) *dagger.Container](<#func-base>)
-- [func CheckGoDoc(ctx context.Context, c *dagger.Client) error](<#func-checkgodoc>)
-- [func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuildOpts) error](<#func-crossbuild>)
-- [func ExportGoMod(ctx context.Context, c *dagger.Client) error](<#func-exportgomod>)
-- [func GoDeps(c *dagger.Client) *dagger.Container](<#func-godeps>)
-- [func GoDoc(ctx context.Context, c *dagger.Client) error](<#func-godoc>)
-- [func GoMod(c *dagger.Client) *dagger.Container](<#func-gomod>)
-- [func GoVulnCheck(ctx context.Context, c *dagger.Client) error](<#func-govulncheck>)
-- [func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error](<#func-localbuild>)
-- [func PrintGofmt(ctx context.Context, c *dagger.Client) error](<#func-printgofmt>)
-- [func PrintGofumpt(ctx context.Context, c *dagger.Client) error](<#func-printgofumpt>)
-- [func RunGoTests(ctx context.Context, c *dagger.Client) error](<#func-rungotests>)
-- [func Sources(c *dagger.Client) *dagger.Container](<#func-sources>)
-- [func SourcesNoDeps(c *dagger.Client) *dagger.Container](<#func-sourcesnodeps>)
-- [func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) error](<#func-applygoformatter>)
-- [func exportFiles(ctx context.Context, cont *dagger.Container, files []string) error](<#func-exportfiles>)
-- [func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
-- [func sources(c *dagger.Client, cont *dagger.Container) *dagger.Container](<#func-sources>)
+- [Variables](<#variables>)
+- [func ApplyFormatAndImports(ctx context.Context, c *Client, formatter string, locals []string) error](<#func-applyformatandimports>)
+- [func ApplyGoformatter(ctx context.Context, c *Client, formatter string) error](<#func-applygoformatter>)
+- [func CheckGoDoc(ctx context.Context, c *Client) error](<#func-checkgodoc>)
+- [func CrossBuild(ctx context.Context, c *Client, buildOpts types.CrossBuildOpts) error](<#func-crossbuild>)
+- [func ExportGoMod(ctx context.Context, c *Client) error](<#func-exportgomod>)
+- [func GoBase(c *Client) *dagger.Container](<#func-gobase>)
+- [func GoDeps(c *Client) *dagger.Container](<#func-godeps>)
+- [func GoDoc(ctx context.Context, c *Client) error](<#func-godoc>)
+- [func GoImports(ctx context.Context, c *Client, locals []string) error](<#func-goimports>)
+- [func GoMod(c *Client) *dagger.Container](<#func-gomod>)
+- [func GoVulnCheck(ctx context.Context, c *Client) error](<#func-govulncheck>)
+- [func GolangCILint(ctx context.Context, c *Client) error](<#func-golangcilint>)
+- [func GolangCILintBase(c *Client) *dagger.Container](<#func-golangcilintbase>)
+- [func LocalBuild(ctx context.Context, c *Client, buildOpts types.LocalBuildOpts) error](<#func-localbuild>)
+- [func PrintGoformatter(ctx context.Context, c *Client, formatter string) error](<#func-printgoformatter>)
+- [func RunGoTests(ctx context.Context, c *Client) error](<#func-rungotests>)
+- [func RunInDagger(ctx context.Context, conf *config.Dague, do func(*Client) error) error](<#func-runindagger>)
+- [func Sources(c *Client) *dagger.Container](<#func-sources>)
+- [func SourcesNoDeps(c *Client) *dagger.Container](<#func-sourcesnodeps>)
+- [func formatPrint(formatter string) dagger.ContainerExecOpts](<#func-formatprint>)
+- [func formatWrite(formatter string) dagger.ContainerExecOpts](<#func-formatwrite>)
+- [func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
+- [func goImports(locals []string) dagger.ContainerExecOpts](<#func-goimports>)
+- [func goModDownload() dagger.ContainerExecOpts](<#func-gomoddownload>)
+- [func goModFiles(c *Client) *dagger.Directory](<#func-gomodfiles>)
+- [func goModTidy() dagger.ContainerExecOpts](<#func-gomodtidy>)
+- [func sources(c *Client, cont *dagger.Container) *dagger.Container](<#func-sources>)
+- [type Client](<#type-client>)
+  - [func NewClient(c *dagger.Client, conf *config.Dague) *Client](<#func-newclient>)
 
 
-## func ApplyGofmt
-
-```go
-func ApplyGofmt(ctx context.Context, c *dagger.Client) error
-```
-
-## func ApplyGofumpt
-
-```go
-func ApplyGofumpt(ctx context.Context, c *dagger.Client) error
-```
-
-## func Base
+## Variables
 
 ```go
-func Base(c *dagger.Client) *dagger.Container
+var goModDefaulFiles = []string{"go.mod", "go.sum"}
 ```
 
-Base is a default container based on a Golang build image \(see config.BuildImage\) on top of which is installed several packages and Go packages. The workdir is also set based on config.AppDir.
+## func ApplyFormatAndImports
 
-This container is used as the root of many other commands, allowing to share cache as much as possible.
+```go
+func ApplyFormatAndImports(ctx context.Context, c *Client, formatter string, locals []string) error
+```
+
+## func ApplyGoformatter
+
+```go
+func ApplyGoformatter(ctx context.Context, c *Client, formatter string) error
+```
 
 ## func CheckGoDoc
 
 ```go
-func CheckGoDoc(ctx context.Context, c *dagger.Client) error
+func CheckGoDoc(ctx context.Context, c *Client) error
 ```
 
 ## func CrossBuild
 
 ```go
-func CrossBuild(ctx context.Context, c *dagger.Client, buildOpts types.CrossBuildOpts) error
+func CrossBuild(ctx context.Context, c *Client, buildOpts types.CrossBuildOpts) error
 ```
 
 ## func ExportGoMod
 
 ```go
-func ExportGoMod(ctx context.Context, c *dagger.Client) error
+func ExportGoMod(ctx context.Context, c *Client) error
 ```
+
+## func GoBase
+
+```go
+func GoBase(c *Client) *dagger.Container
+```
+
+GoBase is a default container based on a Golang build image \(see config.BuildImage\) on top of which is installed several packages and Go packages. The workdir is also set based on config.AppDir.
+
+This container is used as the root of many other commands, allowing to share cache as much as possible.
 
 ## func GoDeps
 
 ```go
-func GoDeps(c *dagger.Client) *dagger.Container
+func GoDeps(c *Client) *dagger.Container
 ```
 
 GoDeps mount the Go module files and download the needed dependencies.
@@ -83,49 +99,67 @@ GoDeps mount the Go module files and download the needed dependencies.
 ## func GoDoc
 
 ```go
-func GoDoc(ctx context.Context, c *dagger.Client) error
+func GoDoc(ctx context.Context, c *Client) error
+```
+
+## func GoImports
+
+```go
+func GoImports(ctx context.Context, c *Client, locals []string) error
 ```
 
 ## func GoMod
 
 ```go
-func GoMod(c *dagger.Client) *dagger.Container
+func GoMod(c *Client) *dagger.Container
 ```
 
 ## func GoVulnCheck
 
 ```go
-func GoVulnCheck(ctx context.Context, c *dagger.Client) error
+func GoVulnCheck(ctx context.Context, c *Client) error
+```
+
+## func GolangCILint
+
+```go
+func GolangCILint(ctx context.Context, c *Client) error
+```
+
+## func GolangCILintBase
+
+```go
+func GolangCILintBase(c *Client) *dagger.Container
 ```
 
 ## func LocalBuild
 
 ```go
-func LocalBuild(ctx context.Context, c *dagger.Client, buildOpts types.LocalBuildOpts) error
+func LocalBuild(ctx context.Context, c *Client, buildOpts types.LocalBuildOpts) error
 ```
 
-## func PrintGofmt
+## func PrintGoformatter
 
 ```go
-func PrintGofmt(ctx context.Context, c *dagger.Client) error
-```
-
-## func PrintGofumpt
-
-```go
-func PrintGofumpt(ctx context.Context, c *dagger.Client) error
+func PrintGoformatter(ctx context.Context, c *Client, formatter string) error
 ```
 
 ## func RunGoTests
 
 ```go
-func RunGoTests(ctx context.Context, c *dagger.Client) error
+func RunGoTests(ctx context.Context, c *Client) error
+```
+
+## func RunInDagger
+
+```go
+func RunInDagger(ctx context.Context, conf *config.Dague, do func(*Client) error) error
 ```
 
 ## func Sources
 
 ```go
-func Sources(c *dagger.Client) *dagger.Container
+func Sources(c *Client) *dagger.Container
 ```
 
 Sources is a container based on GoDeps. It contains the Go source code but also all the needed dependencies from Go modules.
@@ -133,33 +167,78 @@ Sources is a container based on GoDeps. It contains the Go source code but also 
 ## func SourcesNoDeps
 
 ```go
-func SourcesNoDeps(c *dagger.Client) *dagger.Container
+func SourcesNoDeps(c *Client) *dagger.Container
 ```
 
 SourcesNoDeps is a container including all the source code, but without the Go modules downloaded. It can be helpful with projects where dependencies are vendored but also just minimise the number of steps when it's not required.
 
-## func applyGoformatter
+## func formatPrint
 
 ```go
-func applyGoformatter(ctx context.Context, c *dagger.Client, formatter string) error
+func formatPrint(formatter string) dagger.ContainerExecOpts
 ```
 
-## func exportFiles
+## func formatWrite
 
 ```go
-func exportFiles(ctx context.Context, cont *dagger.Container, files []string) error
+func formatWrite(formatter string) dagger.ContainerExecOpts
 ```
 
 ## func goBuild
 
 ```go
-func goBuild(ctx context.Context, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error
+func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error
 ```
+
+## func goImports
+
+```go
+func goImports(locals []string) dagger.ContainerExecOpts
+```
+
+## func goModDownload
+
+```go
+func goModDownload() dagger.ContainerExecOpts
+```
+
+GoModDownload runs the go mod download command.
+
+## func goModFiles
+
+```go
+func goModFiles(c *Client) *dagger.Directory
+```
+
+GoModFiles creates a directory containing the default go mod files.
+
+## func goModTidy
+
+```go
+func goModTidy() dagger.ContainerExecOpts
+```
+
+GoModTidy runs the go mod tidy command.
 
 ## func sources
 
 ```go
-func sources(c *dagger.Client, cont *dagger.Container) *dagger.Container
+func sources(c *Client, cont *dagger.Container) *dagger.Container
+```
+
+## type Client
+
+```go
+type Client struct {
+    Dagger *dagger.Client
+    Config *config.Dague
+}
+```
+
+### func NewClient
+
+```go
+func NewClient(c *dagger.Client, conf *config.Dague) *Client
 ```
 
 
