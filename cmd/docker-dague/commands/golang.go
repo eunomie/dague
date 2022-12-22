@@ -6,35 +6,33 @@ import (
 	"path/filepath"
 	"strings"
 
-	"dagger.io/dagger"
 	"github.com/spf13/cobra"
 
-	"github.com/eunomie/dague"
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
 	"github.com/eunomie/dague/types"
 )
 
 // GoCommands contains all commands related to Go like modules management or build.
-func GoCommands(opts *config.Dague) []*cobra.Command {
+func GoCommands(conf *config.Dague) []*cobra.Command {
 	return []*cobra.Command{
-		GoDeps(opts),
-		GoMod(opts),
-		GoTest(),
-		GoDoc(),
-		GoBuild(opts),
+		GoDeps(conf),
+		GoMod(conf),
+		GoTest(conf),
+		GoDoc(conf),
+		GoBuild(conf),
 	}
 }
 
 // GoDeps is a command to download go modules.
-func GoDeps(_ *config.Dague) *cobra.Command {
+func GoDeps(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
 		Use:   "go:deps",
 		Short: "Download go modules",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				daggers.GoDeps(c)
 				return nil
 			})
@@ -43,14 +41,14 @@ func GoDeps(_ *config.Dague) *cobra.Command {
 }
 
 // GoMod is a command to run go mod tidy and export go.mod and go.sum files.
-func GoMod(opts *config.Dague) *cobra.Command {
+func GoMod(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
 		Use:   "go:mod MODULES...",
 		Short: "Run go mod tidy and export go.mod and go.sum files",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				if err := daggers.ExportGoMod(ctx, c); err != nil {
 					return err
 				}
@@ -61,14 +59,14 @@ func GoMod(opts *config.Dague) *cobra.Command {
 }
 
 // GoTest is a command running Go tests.
-func GoTest() *cobra.Command {
+func GoTest(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
 		Use:   "go:test",
 		Short: "Run go tests",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				return daggers.RunGoTests(ctx, c)
 			})
 		},
@@ -80,7 +78,7 @@ type goDocOptions struct {
 }
 
 // GoDoc is a command generating Go documentation into readme.md files.
-func GoDoc() *cobra.Command {
+func GoDoc(conf *config.Dague) *cobra.Command {
 	opts := goDocOptions{
 		check: false,
 	}
@@ -90,7 +88,7 @@ func GoDoc() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				if opts.check {
 					return daggers.CheckGoDoc(ctx, c)
 				}
@@ -106,7 +104,7 @@ func GoDoc() *cobra.Command {
 }
 
 // GoBuild is a command to build a Go binary based on the local architecture.
-func GoBuild(opts *config.Dague) *cobra.Command {
+func GoBuild(conf *config.Dague) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "go:build [OPTIONS] TARGET",
 		Short: "Compile go code and export it for the local architecture",
@@ -114,10 +112,10 @@ func GoBuild(opts *config.Dague) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			var targetName = args[0]
+			targetName := args[0]
 			var target config.Target
 			var ok bool
-			for _, t := range opts.Go.Build.Targets {
+			for _, t := range conf.Go.Build.Targets {
 				if t.Name == targetName {
 					target = t
 					ok = true
@@ -132,7 +130,7 @@ func GoBuild(opts *config.Dague) *cobra.Command {
 			if target.Ldflags != "" {
 				buildFlags = append(buildFlags, "-ldflags="+os.ExpandEnv(target.Ldflags))
 			}
-			return dague.RunInDagger(ctx, func(c *dagger.Client) error {
+			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				if target.Type == "local" {
 					return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
 						BuildOpts: types.BuildOpts{

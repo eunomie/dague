@@ -9,8 +9,6 @@ import (
 	"dagger.io/dagger"
 )
 
-var goModFiles = []string{"go.mod", "go.sum"}
-
 // RunInDagger initialize the dagger client and close it. In between it runs the specified function.
 // Example:
 //
@@ -33,52 +31,16 @@ func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error {
 //	err := dague.Exec(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
 //	    Args: []string{"go", "build"},
 //	})
-func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error {
-	_, err := ExecCont(ctx, cont, opts)
-	return err
-}
-
-// ExecCont runs the specified command and check the error and exist code. Returns the container and the error if exists.
-// Example:
-//
-//	cont, err := dague.ExecCont(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
-//	    Args: []string{"go", "build"},
-//	})
-func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error) {
+func Exec(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) error {
 	cont := src.Exec(opts)
 	exitCode, err := cont.ExitCode(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if exitCode != 0 {
-		return nil, errors.New("exec failed")
+		return errors.New("exec failed")
 	}
-	return cont, nil
-}
-
-// ExecOut runs the specified command and return the content of stdout and stderr.
-// Example:
-//
-//	stdout, stderr, err := dague.ExecOut(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
-//	    Args: []string{"go", "build"},
-//	})
-func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error) {
-	cont, err := ExecCont(ctx, src, opts)
-	if err != nil {
-		return "", "", err
-	}
-
-	stdout, err := cont.Stdout().Contents(ctx)
-	if err != nil {
-		return "", "", err
-	}
-
-	stderr, err := cont.Stderr().Contents(ctx)
-	if err != nil {
-		return "", "", err
-	}
-
-	return stdout, stderr, nil
+	return nil
 }
 
 // GoInstall installs the specified go packages.
@@ -115,30 +77,6 @@ func AptInstall(cont *dagger.Container, packages ...string) *dagger.Container {
 	}).Exec(dagger.ContainerExecOpts{
 		Args: []string{"rm", "-rf", "/var/lib/apt/lists/*"},
 	})
-}
-
-// GoModFiles creates a directory containing the default go mod files.
-func GoModFiles(c *dagger.Client) *dagger.Directory {
-	src := c.Host().Workdir()
-	goMods := c.Directory()
-	for _, f := range goModFiles {
-		goMods = goMods.WithFile(f, src.File(f))
-	}
-	return goMods
-}
-
-// GoModDownload runs the go mod download command.
-func GoModDownload() dagger.ContainerExecOpts {
-	return dagger.ContainerExecOpts{
-		Args: []string{"go", "mod", "download"},
-	}
-}
-
-// GoModTidy runs the go mod tidy command.
-func GoModTidy() dagger.ContainerExecOpts {
-	return dagger.ContainerExecOpts{
-		Args: []string{"go", "mod", "tidy", "-v"},
-	}
 }
 
 func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error {

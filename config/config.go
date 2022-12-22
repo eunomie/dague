@@ -7,13 +7,6 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-var (
-	// BuildImage is the base Golang docker image used to run all the tools.
-	BuildImage = "golang:1.19.4-alpine3.17"
-	// AppDir is the default local to the container folder where to copy/mount sources.
-	AppDir = "/go/src"
-)
-
 type (
 	Dague struct {
 		Go Go `yaml:"go"`
@@ -64,10 +57,8 @@ const (
 	defaultConfigFile = ".dague.yml"
 )
 
-var (
-	// go:embed .dague.default.yml
-	defaults []byte
-)
+// go:embed .dague.default.yml
+var defaults []byte
 
 func Load() (Dague, error) {
 	var dague Dague
