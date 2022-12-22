@@ -23,6 +23,7 @@ import "github.com/eunomie/dague/cmd/docker-dague/commands"
 - [func GoTest(conf *config.Dague) *cobra.Command](<#func-gotest>)
 - [func Lint(conf *config.Dague) *cobra.Command](<#func-lint>)
 - [func LintCommands(conf *config.Dague) []*cobra.Command](<#func-lintcommands>)
+- [func LintGolangCILint(conf *config.Dague) *cobra.Command](<#func-lintgolangcilint>)
 - [func LintGovuln(conf *config.Dague) *cobra.Command](<#func-lintgovuln>)
 - [func Version() *cobra.Command](<#func-version>)
 - [func VersionCommands(_ *config.Dague) []*cobra.Command](<#func-versioncommands>)
@@ -128,6 +129,12 @@ func LintCommands(conf *config.Dague) []*cobra.Command
 ```
 
 LintCommands contains all commands related to linters.
+
+## func LintGolangCILint
+
+```go
+func LintGolangCILint(conf *config.Dague) *cobra.Command
+```
 
 ## func LintGovuln
 
