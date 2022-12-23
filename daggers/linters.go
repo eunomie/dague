@@ -23,7 +23,7 @@ func GolangCILint(ctx context.Context, c *Client) error {
 		ctx,
 		sources(c, GolangCILintBase(c)),
 		dagger.ContainerExecOpts{
-			Args: []string{"golangci-lint", "run", "-v"},
+			Args: []string{"golangci-lint", "run", "-v", "--timeout", "5m"},
 		},
 	)
 }
