@@ -11,7 +11,8 @@ import (
 
 type (
 	Dague struct {
-		Go Go `yaml:"go"`
+		Go    Go    `yaml:"go"`
+		Tasks Tasks `yaml:"tasks"`
 	}
 	Goimports struct {
 		Locals []string `yaml:"locals"`
@@ -50,6 +51,7 @@ type (
 		Lint   Lint   `yaml:"lint"`
 		Build  Build  `yaml:"build"`
 	}
+	Tasks map[string]string
 )
 
 const (

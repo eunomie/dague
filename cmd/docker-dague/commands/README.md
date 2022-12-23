@@ -25,9 +25,12 @@ import "github.com/eunomie/dague/cmd/docker-dague/commands"
 - [func LintCommands(conf *config.Dague) []*cobra.Command](<#func-lintcommands>)
 - [func LintGolangCILint(conf *config.Dague) *cobra.Command](<#func-lintgolangcilint>)
 - [func LintGovuln(conf *config.Dague) *cobra.Command](<#func-lintgovuln>)
+- [func Task(conf *config.Dague) *cobra.Command](<#func-task>)
+- [func TaskCommands(conf *config.Dague) []*cobra.Command](<#func-taskcommands>)
 - [func Version() *cobra.Command](<#func-version>)
 - [func VersionCommands(_ *config.Dague) []*cobra.Command](<#func-versioncommands>)
 - [func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)](<#func-interpretshell>)
+- [func runShell(ctx context.Context, cmd string) error](<#func-runshell>)
 - [type goDocOptions](<#type-godocoptions>)
 
 
@@ -145,6 +148,18 @@ func LintGovuln(conf *config.Dague) *cobra.Command
 
 LintGovuln is a command running govulncheck against the Go source code.
 
+## func Task
+
+```go
+func Task(conf *config.Dague) *cobra.Command
+```
+
+## func TaskCommands
+
+```go
+func TaskCommands(conf *config.Dague) []*cobra.Command
+```
+
 ## func Version
 
 ```go
@@ -161,6 +176,12 @@ func VersionCommands(_ *config.Dague) []*cobra.Command
 
 ```go
 func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)
+```
+
+## func runShell
+
+```go
+func runShell(ctx context.Context, cmd string) error
 ```
 
 ## type goDocOptions
