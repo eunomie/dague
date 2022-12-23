@@ -29,17 +29,14 @@ type (
 		Govulncheck Govulncheck `yaml:"govulncheck"`
 		Golangci    Golangci    `yaml:"golangci"`
 	}
-	Env struct {
-		CGOENABLED int `yaml:"CGO_ENABLED"`
-	}
 	Target struct {
-		Name      string   `yaml:"name"`
-		Type      string   `yaml:"type"`
-		Path      string   `yaml:"path"`
-		Out       string   `yaml:"out"`
-		Env       Env      `yaml:"env"`
-		Ldflags   string   `yaml:"ldflags"`
-		Platforms []string `yaml:"platforms,omitempty"`
+		Name      string            `yaml:"name"`
+		Type      string            `yaml:"type"`
+		Path      string            `yaml:"path"`
+		Out       string            `yaml:"out"`
+		Env       map[string]string `yaml:"env"`
+		Ldflags   string            `yaml:"ldflags"`
+		Platforms []string          `yaml:"platforms,omitempty"`
 	}
 	Build struct {
 		Targets []Target `yaml:"targets"`

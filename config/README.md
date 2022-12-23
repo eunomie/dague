@@ -15,7 +15,6 @@ import "github.com/eunomie/dague/config"
 - [type Build](<#type-build>)
 - [type Dague](<#type-dague>)
   - [func Load() (Dague, error)](<#func-load>)
-- [type Env](<#type-env>)
 - [type Fmt](<#type-fmt>)
 - [type Go](<#type-go>)
 - [type Goimports](<#type-goimports>)
@@ -61,14 +60,6 @@ type Dague struct {
 
 ```go
 func Load() (Dague, error)
-```
-
-## type Env
-
-```go
-type Env struct {
-    CGOENABLED int `yaml:"CGO_ENABLED"`
-}
 ```
 
 ## type Fmt
@@ -130,13 +121,13 @@ type Lint struct {
 
 ```go
 type Target struct {
-    Name      string   `yaml:"name"`
-    Type      string   `yaml:"type"`
-    Path      string   `yaml:"path"`
-    Out       string   `yaml:"out"`
-    Env       Env      `yaml:"env"`
-    Ldflags   string   `yaml:"ldflags"`
-    Platforms []string `yaml:"platforms,omitempty"`
+    Name      string            `yaml:"name"`
+    Type      string            `yaml:"type"`
+    Path      string            `yaml:"path"`
+    Out       string            `yaml:"out"`
+    Env       map[string]string `yaml:"env"`
+    Ldflags   string            `yaml:"ldflags"`
+    Platforms []string          `yaml:"platforms,omitempty"`
 }
 ```
 

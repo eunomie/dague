@@ -24,6 +24,7 @@ go:
         out: ./dist
         env:
           CGO_ENABLED: 0
+          GIT_COMMIT: !sh git describe --tags | cut -c 2-
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${DAGUE_SET_VERSION}'
       - << : *dague-build
         name: cross
