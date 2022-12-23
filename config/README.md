@@ -12,6 +12,12 @@ import "github.com/eunomie/dague/config"
 
 - [Constants](<#constants>)
 - [Variables](<#variables>)
+- [func IsMapping(i interface{}) bool](<#func-ismapping>)
+- [func IsScalar(i interface{}) bool](<#func-isscalar>)
+- [func IsSequence(i interface{}) bool](<#func-issequence>)
+- [func YAML(sources [][]byte, strict bool) (*bytes.Buffer, error)](<#func-yaml>)
+- [func describe(i interface{}) string](<#func-describe>)
+- [func merge(into, from interface{}, strict bool) (interface{}, error)](<#func-merge>)
 - [type Build](<#type-build>)
 - [type Dague](<#type-dague>)
   - [func Load() (Dague, error)](<#func-load>)
@@ -22,6 +28,9 @@ import "github.com/eunomie/dague/config"
 - [type Govulncheck](<#type-govulncheck>)
 - [type Lint](<#type-lint>)
 - [type Target](<#type-target>)
+- [type mapping](<#type-mapping>)
+  - [func mergeMapping(into, from mapping, strict bool) (mapping, error)](<#func-mergemapping>)
+- [type sequence](<#type-sequence>)
 
 
 ## Constants
@@ -34,10 +43,70 @@ const (
 
 ## Variables
 
-go:embed .dague.default.yml
-
 ```go
 var defaults []byte
+```
+
+## func IsMapping
+
+```go
+func IsMapping(i interface{}) bool
+```
+
+IsMapping reports whether a type is a mapping in YAML, represented as a map\[interface\{\}\]interface\{\}.
+
+## func IsScalar
+
+```go
+func IsScalar(i interface{}) bool
+```
+
+IsScalar reports whether a type is a scalar value in YAML.
+
+## func IsSequence
+
+```go
+func IsSequence(i interface{}) bool
+```
+
+IsSequence reports whether a type is a sequence in YAML, represented as an \[\]interface\{\}.
+
+## func YAML
+
+```go
+func YAML(sources [][]byte, strict bool) (*bytes.Buffer, error)
+```
+
+YAML deep\-merges any number of YAML sources, with later sources taking priority over earlier ones.
+
+Maps are deep\-merged. For example,
+
+```
+{"one": 1, "two": 2} + {"one": 42, "three": 3}
+== {"one": 42, "two": 2, "three": 3}
+```
+
+Sequences are replaced. For example,
+
+```
+{"foo": [1, 2, 3]} + {"foo": [4, 5, 6]}
+== {"foo": [4, 5, 6]}
+```
+
+In non\-strict mode, duplicate map keys are allowed within a single source, with later values overwriting previous ones. Attempting to merge mismatched types \(e.g., merging a sequence into a map\) replaces the old value with the new.
+
+Enabling strict mode returns errors in both of the above cases.
+
+## func describe
+
+```go
+func describe(i interface{}) string
+```
+
+## func merge
+
+```go
+func merge(into, from interface{}, strict bool) (interface{}, error)
 ```
 
 ## type Build
@@ -129,6 +198,26 @@ type Target struct {
     Ldflags   string            `yaml:"ldflags"`
     Platforms []string          `yaml:"platforms,omitempty"`
 }
+```
+
+## type mapping
+
+YAML has three fundamental types. When unmarshaled into interface\{\}, they're represented like this.
+
+```go
+type mapping = map[interface{}]interface{}
+```
+
+### func mergeMapping
+
+```go
+func mergeMapping(into, from mapping, strict bool) (mapping, error)
+```
+
+## type sequence
+
+```go
+type sequence = []interface{}
 ```
 
 
