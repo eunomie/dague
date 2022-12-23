@@ -57,3 +57,8 @@ go:
           - darwin/arm64
           - windows/amd64
           - windows/arm64
+
+# Run arbitrary tasks
+tasks:
+  # Map of targets with a shell script to run
+  name: echo this is a task

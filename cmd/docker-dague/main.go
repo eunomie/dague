@@ -61,6 +61,7 @@ func pluginMain() {
 		c.AddCommand(commands.LintCommands(&opts)...)
 		c.AddCommand(commands.FmtCommands(&opts)...)
 		c.AddCommand(commands.GoCommands(&opts)...)
+		c.AddCommand(commands.TaskCommands(&opts)...)
 		return c
 	}, manager.Metadata{
 		SchemaVersion: "0.1.0",

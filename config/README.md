@@ -28,6 +28,7 @@ import "github.com/eunomie/dague/config"
 - [type Govulncheck](<#type-govulncheck>)
 - [type Lint](<#type-lint>)
 - [type Target](<#type-target>)
+- [type Tasks](<#type-tasks>)
 - [type mapping](<#type-mapping>)
   - [func mergeMapping(into, from mapping, strict bool) (mapping, error)](<#func-mergemapping>)
 - [type sequence](<#type-sequence>)
@@ -121,7 +122,8 @@ type Build struct {
 
 ```go
 type Dague struct {
-    Go Go `yaml:"go"`
+    Go    Go    `yaml:"go"`
+    Tasks Tasks `yaml:"tasks"`
 }
 ```
 
@@ -198,6 +200,12 @@ type Target struct {
     Ldflags   string            `yaml:"ldflags"`
     Platforms []string          `yaml:"platforms,omitempty"`
 }
+```
+
+## type Tasks
+
+```go
+type Tasks map[string]string
 ```
 
 ## type mapping
