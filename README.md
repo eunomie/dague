@@ -51,26 +51,13 @@ import "github.com/eunomie/dague"
 
 ## Index
 
-- [Variables](<#variables>)
 - [func ApkInstall(packages ...string) dagger.ContainerExecOpts](<#func-apkinstall>)
 - [func AptInstall(cont *dagger.Container, packages ...string) *dagger.Container](<#func-aptinstall>)
-- [func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error](<#func-exec>)
-- [func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error)](<#func-execcont>)
-- [func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error)](<#func-execout>)
+- [func Exec(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) error](<#func-exec>)
 - [func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error](<#func-exportfilepattern>)
-- [func ExportGoMod(ctx context.Context, cont *dagger.Container, contDir, exportDir string) error](<#func-exportgomod>)
 - [func GoInstall(packages ...string) dagger.ContainerExecOpts](<#func-goinstall>)
-- [func GoModDownload() dagger.ContainerExecOpts](<#func-gomoddownload>)
-- [func GoModFiles(c *dagger.Client) *dagger.Directory](<#func-gomodfiles>)
-- [func GoModTidy() dagger.ContainerExecOpts](<#func-gomodtidy>)
 - [func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error](<#func-runindagger>)
 
-
-## Variables
-
-```go
-var goModFiles = []string{"go.mod", "go.sum"}
-```
 
 ## func ApkInstall
 
@@ -99,7 +86,7 @@ dague.AptInstall(c.Container().From("debian"), "gcc", "git")
 ## func Exec
 
 ```go
-func Exec(ctx context.Context, cont *dagger.Container, opts dagger.ContainerExecOpts) error
+func Exec(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) error
 ```
 
 Exec runs the specified command and check the error and exit code. Example:
@@ -110,47 +97,11 @@ err := dague.Exec(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
 })
 ```
 
-## func ExecCont
-
-```go
-func ExecCont(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (*dagger.Container, error)
-```
-
-ExecCont runs the specified command and check the error and exist code. Returns the container and the error if exists. Example:
-
-```
-cont, err := dague.ExecCont(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
-    Args: []string{"go", "build"},
-})
-```
-
-## func ExecOut
-
-```go
-func ExecOut(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) (string, string, error)
-```
-
-ExecOut runs the specified command and return the content of stdout and stderr. Example:
-
-```
-stdout, stderr, err := dague.ExecOut(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
-    Args: []string{"go", "build"},
-})
-```
-
 ## func ExportFilePattern
 
 ```go
 func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error
 ```
-
-## func ExportGoMod
-
-```go
-func ExportGoMod(ctx context.Context, cont *dagger.Container, contDir, exportDir string) error
-```
-
-ExportGoMod reads the default go mod tiles from the specified internal dir and export them to the host.
 
 ## func GoInstall
 
@@ -163,30 +114,6 @@ GoInstall installs the specified go packages. Example:
 ```
 c.Container().From("golang").Exec(GoInstall("golang.org/x/vuln/cmd/govulncheck@latest"))
 ```
-
-## func GoModDownload
-
-```go
-func GoModDownload() dagger.ContainerExecOpts
-```
-
-GoModDownload runs the go mod download command.
-
-## func GoModFiles
-
-```go
-func GoModFiles(c *dagger.Client) *dagger.Directory
-```
-
-GoModFiles creates a directory containing the default go mod files.
-
-## func GoModTidy
-
-```go
-func GoModTidy() dagger.ContainerExecOpts
-```
-
-GoModTidy runs the go mod tidy command.
 
 ## func RunInDagger
 

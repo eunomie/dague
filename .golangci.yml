@@ -1,0 +1,19 @@
+run:
+  go: '1.19'
+linters:
+  enable:
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - unconvert
+    - gofmt
+    - misspell
+    - bodyclose
+    - revive
+    - gocyclo
+    - whitespace
+    - goimports
+    - unparam

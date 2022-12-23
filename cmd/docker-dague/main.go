@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/eunomie/dague/cmd/docker-dague/commands"
+	"github.com/spf13/cobra"
 
 	"github.com/docker/cli/cli"
 	"github.com/docker/cli/cli-plugins/manager"
 	"github.com/docker/cli/cli-plugins/plugin"
 	"github.com/docker/cli/cli/command"
+	"github.com/eunomie/dague/cmd/docker-dague/commands"
+	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/internal"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -20,10 +21,19 @@ const (
 
 func pluginMain() {
 	plugin.Run(func(dockerCli command.Cli) *cobra.Command {
+		var opts config.Dague
 		c := &cobra.Command{
 			Short:            "Docker Dague",
 			Use:              PluginName,
 			TraverseChildren: true,
+			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+				c, err := config.Load()
+				if err != nil {
+					return err
+				}
+				opts = c
+				return nil
+			},
 			RunE: func(cmd *cobra.Command, args []string) error {
 				if len(args) == 0 {
 					return cmd.Help()
@@ -35,10 +45,22 @@ func pluginMain() {
 				}
 			},
 		}
-		c.AddCommand(commands.VersionCommands...)
-		c.AddCommand(commands.LintCommands...)
-		c.AddCommand(commands.FmtCommands...)
-		c.AddCommand(commands.GoCommands...)
+		originalPreRun := c.PersistentPreRunE
+		c.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+			if err := plugin.PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
+			if originalPreRun != nil {
+				if err := originalPreRun(cmd, args); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		c.AddCommand(commands.VersionCommands(&opts)...)
+		c.AddCommand(commands.LintCommands(&opts)...)
+		c.AddCommand(commands.FmtCommands(&opts)...)
+		c.AddCommand(commands.GoCommands(&opts)...)
 		return c
 	}, manager.Metadata{
 		SchemaVersion: "0.1.0",

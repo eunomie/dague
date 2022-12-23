@@ -5,6 +5,7 @@ go 1.19
 require (
 	dagger.io/dagger v0.4.0
 	github.com/docker/cli v20.10.17+incompatible
+	github.com/ghodss/yaml v1.0.0
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
 )
@@ -91,6 +92,7 @@ require (
 	google.golang.org/genproto v0.0.0-20220810155839-1856144b1d9c // indirect
 	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 replace (

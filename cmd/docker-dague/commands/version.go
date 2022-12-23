@@ -3,16 +3,17 @@ package commands
 import (
 	"fmt"
 
-	"github.com/eunomie/dague/internal"
-
 	"github.com/spf13/cobra"
+
+	"github.com/eunomie/dague/config"
+	"github.com/eunomie/dague/internal"
 )
 
-var (
-	VersionCommands = []*cobra.Command{
+func VersionCommands(_ *config.Dague) []*cobra.Command {
+	return []*cobra.Command{
 		Version(),
 	}
-)
+}
 
 func Version() *cobra.Command {
 	return &cobra.Command{
