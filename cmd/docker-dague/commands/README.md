@@ -27,6 +27,7 @@ import "github.com/eunomie/dague/cmd/docker-dague/commands"
 - [func LintGovuln(conf *config.Dague) *cobra.Command](<#func-lintgovuln>)
 - [func Version() *cobra.Command](<#func-version>)
 - [func VersionCommands(_ *config.Dague) []*cobra.Command](<#func-versioncommands>)
+- [func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)](<#func-interpretshell>)
 - [type goDocOptions](<#type-godocoptions>)
 
 
@@ -154,6 +155,12 @@ func Version() *cobra.Command
 
 ```go
 func VersionCommands(_ *config.Dague) []*cobra.Command
+```
+
+## func interpretShell
+
+```go
+func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)
 ```
 
 ## type goDocOptions

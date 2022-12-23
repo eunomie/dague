@@ -1,12 +1,22 @@
 package commands
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"mvdan.cc/sh/v3/syntax"
+
+	"mvdan.cc/sh/v3/expand"
+
+	"mvdan.cc/sh/v3/interp"
+
 	"github.com/spf13/cobra"
+
+	"mvdan.cc/sh/v3/shell"
 
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
@@ -126,20 +136,38 @@ func GoBuild(conf *config.Dague) *cobra.Command {
 				return fmt.Errorf("could not find the target %q to build", targetName)
 			}
 
+			env := map[string]string{}
+
+			for k, v := range target.Env {
+				if strings.HasPrefix(v, "$ ") {
+					shellCmd := strings.TrimPrefix(v, "$ ")
+					value, err := interpretShell(ctx, shellCmd, env)
+					if err != nil {
+						return err
+					}
+					env[k] = value
+				} else {
+					env[k] = v
+				}
+			}
+
 			var buildFlags []string
 			if target.Ldflags != "" {
-				buildFlags = append(buildFlags, "-ldflags="+os.ExpandEnv(target.Ldflags))
+				flags, err := shell.Expand(target.Ldflags, func(s string) string {
+					return env[s]
+				})
+				if err != nil {
+					return err
+				}
+				buildFlags = append(buildFlags, "-ldflags="+flags)
 			}
 			return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 				if target.Type == "local" {
 					return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
 						BuildOpts: types.BuildOpts{
-							Dir: target.Out,
-							In:  target.Path,
-							EnvVars: map[string]string{
-								"CGO_ENABLED": "0",
-								"GO11MODULE":  "auto",
-							},
+							Dir:        target.Out,
+							In:         target.Path,
+							EnvVars:    env,
 							BuildFlags: buildFlags,
 						},
 						Out: filepath.Base(target.Path),
@@ -152,12 +180,9 @@ func GoBuild(conf *config.Dague) *cobra.Command {
 				}
 				return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
 					BuildOpts: types.BuildOpts{
-						Dir: target.Out,
-						In:  target.Path,
-						EnvVars: map[string]string{
-							"CGO_ENABLED": "0",
-							"GO11MODULE":  "auto",
-						},
+						Dir:        target.Out,
+						In:         target.Path,
+						EnvVars:    env,
 						BuildFlags: buildFlags,
 					},
 					OutFileFormat: filepath.Base(target.Path) + "_%s_%s",
@@ -168,4 +193,28 @@ func GoBuild(conf *config.Dague) *cobra.Command {
 	}
 
 	return cmd
+}
+
+func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error) {
+	script, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
+	if err != nil {
+		return "", err
+	}
+
+	out := bytes.NewBufferString("")
+
+	pairs := os.Environ()
+	for k, v := range env {
+		pairs = append(pairs, fmt.Sprintf("%s=%s", k, v))
+	}
+	runner, err := interp.New(interp.Env(expand.ListEnviron(pairs...)), interp.StdIO(nil, out, out))
+	if err != nil {
+		return "", err
+	}
+
+	if err = runner.Run(ctx, script); err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(out.String()), nil
 }
