@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
+
 	"mvdan.cc/sh/v3/syntax"
 
 	"mvdan.cc/sh/v3/expand"
@@ -118,11 +120,37 @@ func GoBuild(conf *config.Dague) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "go:build [OPTIONS] TARGET",
 		Short: "Compile go code and export it for the local architecture",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			targetName := args[0]
+			var targetName string
+
+			if len(args) == 0 {
+				var targetNames []string
+				for _, t := range conf.Go.Build.Targets {
+					targetNames = append(targetNames, t.Name)
+				}
+				qs := []*survey.Question{
+					{
+						Name: "target",
+						Prompt: &survey.Select{
+							Message: "Choose the target to build:",
+							Options: targetNames,
+						},
+					},
+				}
+				answer := struct {
+					Target string
+				}{}
+				if err := survey.Ask(qs, &answer); err != nil {
+					return fmt.Errorf("could not select the target to build")
+				}
+				targetName = answer.Target
+			} else {
+				targetName = args[0]
+			}
+
 			var target config.Target
 			var ok bool
 			for _, t := range conf.Go.Build.Targets {
