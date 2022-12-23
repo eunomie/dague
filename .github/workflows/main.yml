@@ -115,8 +115,9 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/*"
-          prerelease: true
+          makeLatest: true
+          prerelease: false
           draft: false
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.new_version.outputs.new_version }}
+          tag: v${{ steps.new_version.outputs.new_version }}
           body: ${{ steps.new_version.outputs.changelog }}
