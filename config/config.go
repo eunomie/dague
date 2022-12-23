@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ghodss/yaml"
+	_ "embed"
+
+	"gopkg.in/yaml.v2"
 )
 
 type (
@@ -54,22 +56,22 @@ const (
 	defaultConfigFile = ".dague.yml"
 )
 
-// go:embed .dague.default.yml
+//go:embed .dague.default.yml
 var defaults []byte
 
 func Load() (Dague, error) {
-	var dague Dague
-	err := yaml.Unmarshal(defaults, &dague)
-	if err != nil {
-		return Dague{}, fmt.Errorf("could not read default configuration: %w", err)
-	}
-
 	configData, err := os.ReadFile(defaultConfigFile)
 	if err != nil {
 		return Dague{}, fmt.Errorf("could not read .dague.yml config file: %w", err)
 	}
 
-	err = yaml.Unmarshal(configData, &dague)
+	merged, err := YAML([][]byte{defaults, configData}, false)
+	if err != nil {
+		return Dague{}, fmt.Errorf("could not merge .dague.yml with defaults: %w", err)
+	}
+
+	var dague Dague
+	err = yaml.Unmarshal(merged.Bytes(), &dague)
 	if err != nil {
 		return Dague{}, fmt.Errorf("could not parse .dague.yml config file: %w", err)
 	}
