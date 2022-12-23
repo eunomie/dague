@@ -21,7 +21,7 @@ func LintCommands(conf *config.Dague) []*cobra.Command {
 // Lint is a command running all configured linters.
 func Lint(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "lint",
+		Use:   "go:lint",
 		Short: "Lint Go code",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -45,7 +45,7 @@ func Lint(conf *config.Dague) *cobra.Command {
 // LintGovuln is a command running govulncheck against the Go source code.
 func LintGovuln(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "lint:govuln",
+		Use:   "go:lint:govuln",
 		Short: "Lint Go code using govulncheck",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -62,7 +62,7 @@ func LintGovuln(conf *config.Dague) *cobra.Command {
 
 func LintGolangCILint(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "lint:golangci",
+		Use:   "go:lint:golangci",
 		Short: "Lint Go code",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

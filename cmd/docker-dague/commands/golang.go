@@ -118,7 +118,7 @@ func GoDoc(conf *config.Dague) *cobra.Command {
 // GoBuild is a command to build a Go binary based on the local architecture.
 func GoBuild(conf *config.Dague) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "go:build [OPTIONS] TARGET",
+		Use:   "go:build [TARGET]",
 		Short: "Compile go code and export it for the local architecture",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

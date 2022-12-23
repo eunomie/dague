@@ -19,7 +19,7 @@ func FmtCommands(conf *config.Dague) []*cobra.Command {
 
 func Fmt(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "fmt",
+		Use:   "go:fmt",
 		Short: "Format files and imports",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -34,7 +34,7 @@ func Fmt(conf *config.Dague) *cobra.Command {
 // FmtPrint is a command to print the result of Go formatter. Files will not be modified.
 func FmtPrint(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "fmt:print",
+		Use:   "go:fmt:print",
 		Short: "Print result of go formatter",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -49,7 +49,7 @@ func FmtPrint(conf *config.Dague) *cobra.Command {
 // FmtWrite is a command to write to the existing files the result of the Go formatter.
 func FmtWrite(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "fmt:write",
+		Use:   "go:fmt:write",
 		Short: "Write result of go formatter to existing files",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -63,7 +63,7 @@ func FmtWrite(conf *config.Dague) *cobra.Command {
 
 func GoImports(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "fmt:imports",
+		Use:   "go:fmt:imports",
 		Short: "Reorder imports",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

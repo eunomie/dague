@@ -23,7 +23,7 @@ func TaskCommands(conf *config.Dague) []*cobra.Command {
 
 func Task(conf *config.Dague) *cobra.Command {
 	return &cobra.Command{
-		Use:   "task",
+		Use:   "task [TASK]",
 		Short: "Run tasks",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
