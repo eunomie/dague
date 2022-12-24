@@ -28,6 +28,7 @@ import "github.com/eunomie/dague/config"
 - [type Govulncheck](<#type-govulncheck>)
 - [type Lint](<#type-lint>)
 - [type Target](<#type-target>)
+- [type Task](<#type-task>)
 - [type Tasks](<#type-tasks>)
 - [type mapping](<#type-mapping>)
   - [func mergeMapping(into, from mapping, strict bool) (mapping, error)](<#func-mergemapping>)
@@ -202,10 +203,19 @@ type Target struct {
 }
 ```
 
+## type Task
+
+```go
+type Task struct {
+    Deps []string `yaml:"deps"`
+    Cmds string   `yaml:"cmds"`
+}
+```
+
 ## type Tasks
 
 ```go
-type Tasks map[string]string
+type Tasks map[string]Task
 ```
 
 ## type mapping

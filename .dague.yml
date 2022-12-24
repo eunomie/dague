@@ -33,6 +33,14 @@ go:
           - windows/arm64
 
 tasks:
-  install: |
-    mkdir -p ~/.docker/cli-plugins
-    install dist/docker-dague ~/.docker/cli-plugins/docker-dague
+  install:
+    deps:
+      - go:build local
+    cmds: |
+      mkdir -p ~/.docker/cli-plugins
+      install dist/docker-dague ~/.docker/cli-plugins/docker-dague
+
+  refresh:
+    deps:
+      - go:fmt
+      - go:doc

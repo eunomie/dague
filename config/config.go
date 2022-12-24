@@ -51,7 +51,11 @@ type (
 		Lint   Lint   `yaml:"lint"`
 		Build  Build  `yaml:"build"`
 	}
-	Tasks map[string]string
+	Task struct {
+		Deps []string `yaml:"deps"`
+		Cmds string   `yaml:"cmds"`
+	}
+	Tasks map[string]Task
 )
 
 const (
