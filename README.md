@@ -8,36 +8,75 @@ Build Go projects, better. Based on [`dagger`](https://dagger.io).
 
 You don't need to have the right version of Go or any other dependencies, if you have Docker you have everything.
 
+## Installation
 
+1. Download the binary corresponding to your platform from the [`latest` release](https://github.com/eunomie/dague/releases/latest).
 
-Especially when you're working on multiple projects, there's always the question of the tooling, the different versions
-of all the tools, do you have all the needed requirements, etc.
+    binaries are available for linux, mac and windows, for amd64 and arm64
+
+2. Rename the binary to `docker-dague` and make it executable
+
+    ```
+    chmod +x docker-dague
+    ```
+
+3. On Mac, authorize the binary (as not signed):
+
+    ```
+    xattr -d com.apple.quarantine docker-dague
+    ```
+
+4. Copy it to the docker directory for CLI plugins:
+
+    ```
+    mkdir -p ~/.docker/cli-plugins
+    install docker-dague ~/.docker/cli-plugins/ 
+    ```
 
 ## Usage
 
-Just drop `docker-dague` binary in your `~/.docker/cli-plugin` directory and you're setup.
+Create a `.dague.yml` file to configure your build targets.
 
+If you want to build a binary from `main/path` to `dist` this is the minimal file you need:
+
+```yaml
+go:
+  build:
+    targets:
+      - name: local-build
+        type: local # to allow local build, can be 'cross' to enable cross platform build
+        path: ./main/path
+        out: ./dist
 ```
-❯ docker dague --help
 
-Usage:  docker dague COMMAND
+With that, you can run `docker dague go:build local-build` and it will build your binary and put it under `./dist/`.
 
-Docker Dague
+The build is performed inside containers, so you don't have to worry about the needed dependencies, tools, versions, etc.
 
-Commands:
-  fmt:print   Print result of gofumpt
-  fmt:write   Write result of gofumpt to existing files
-  go:build    Compile go code and export it for the local architecture
-  go:cross    Compile go code and export it for multiple architectures
-  go:deps     Download go modules
-  go:doc      Generate Go documentation into readme files
-  go:mod      Run go mod tidy and export go.mod and go.sum files
-  go:test     Run go tests
-  lint:govuln Lint Go code using govulncheck
-  version     Print version
+By default `dague` comes with handy go tools already configured like:
 
-Run 'docker dague COMMAND --help' for more information on a command.
+- `go:fmt`: runs `goimports` and `gofumpt` to re-format the code
+- `go:lint`: runs `golangci-lint` and `govulncheck`
+- `go:doc`: generate Go documentation in markdown inside README.me files
+- `go:test`: run go unit tests with handy defaults (`-race -cover -shuffle=on`)
+- `go:mod`: run `go mod tidy` and update `go.mod` and `go.sum` files
+
+You can also define any arbitrary task to be run using `go:task`:
+
+```yaml
+tasks:
+  install:
+    deps:
+      - go:build local
+    cmds: |
+      mkdir -p ~/.docker/cli-plugins
+      install dist/docker-dague ~/.docker/cli-plugins/docker-dague
 ```
+
+The command `docker dague task install` will first run `go:build local` then run the shell script to install the binary.
+The shell script is run using a Go shell implementation so is portable across platforms.
+
+To know more about the possibilities and available configuration, please refer to [the configuration reference file](./.dague.reference.yml).
 
 <!-- gomarkdoc:embed:start -->
 
