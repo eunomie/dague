@@ -48,7 +48,7 @@ jobs:
         with:
           name: dague-bin
       - name: Lint
-        run: chmod +x ./docker-dague; ./docker-dague dague lint
+        run: chmod +x ./docker-dague; ./docker-dague dague go:lint
 
   format:
     needs: [build]
@@ -60,7 +60,7 @@ jobs:
         with:
           name: dague-bin
       - name: gofumpt
-        run: chmod +x ./docker-dague; ./docker-dague dague fmt:print
+        run: chmod +x ./docker-dague; ./docker-dague dague go:fmt:print
 
   build-cross:
     needs: [build]
