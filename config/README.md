@@ -21,6 +21,8 @@ import "github.com/eunomie/dague/config"
 - [type Build](<#type-build>)
 - [type Dague](<#type-dague>)
   - [func Load() (Dague, error)](<#func-load>)
+- [type Exec](<#type-exec>)
+- [type Export](<#type-export>)
 - [type Fmt](<#type-fmt>)
 - [type Go](<#type-go>)
 - [type Goimports](<#type-goimports>)
@@ -134,6 +136,25 @@ type Dague struct {
 func Load() (Dague, error)
 ```
 
+## type Exec
+
+```go
+type Exec struct {
+    Deps   []string `yaml:"deps"`
+    Cmds   string   `yaml:"cmds"`
+    Export Export   `yaml:"export"`
+}
+```
+
+## type Export
+
+```go
+type Export struct {
+    Pattern string `yaml:"pattern"`
+    Path    string `yaml:"path"`
+}
+```
+
 ## type Fmt
 
 ```go
@@ -147,11 +168,12 @@ type Fmt struct {
 
 ```go
 type Go struct {
-    Image  string `yaml:"image"`
-    AppDir string `yaml:"appDir"`
-    Fmt    Fmt    `yaml:"fmt"`
-    Lint   Lint   `yaml:"lint"`
-    Build  Build  `yaml:"build"`
+    Image  string          `yaml:"image"`
+    AppDir string          `yaml:"appDir"`
+    Fmt    Fmt             `yaml:"fmt"`
+    Lint   Lint            `yaml:"lint"`
+    Build  Build           `yaml:"build"`
+    Exec   map[string]Exec `yaml:"exec"`
 }
 ```
 

@@ -184,6 +184,16 @@ func pluginMain() {
 					return l.Run("go:build")(cmd.Context(), args, &conf, nil)
 				},
 			},
+
+			&cobra.Command{
+				Use:   "go:exec [TASK]",
+				Short: "Execute scripts inside the build container",
+				Args:  cobra.MaximumNArgs(1),
+				RunE: func(cmd *cobra.Command, args []string) error {
+					return l.Run("go:exec")(cmd.Context(), args, &conf, nil)
+				},
+			},
+
 			&cobra.Command{
 				Use:   "task [TASK]",
 				Short: "Run tasks",

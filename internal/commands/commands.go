@@ -35,6 +35,8 @@ func NewList() *List {
 	l.register("go:doc", l.goDoc)
 	l.register("go:build", l.goBuild)
 
+	l.register("go:exec", l.goExec)
+
 	l.register("task", l.task)
 	return l
 }
