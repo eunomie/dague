@@ -140,7 +140,6 @@ func pluginMain() {
 				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:mod")(cmd.Context(), args, &conf, nil)
-
 				},
 			},
 			&cobra.Command{

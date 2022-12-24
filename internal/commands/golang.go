@@ -24,7 +24,7 @@ import (
 )
 
 // GoDeps is a command to download go modules.
-func goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
+func (l *List) goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		daggers.GoDeps(c)
 		return nil
@@ -32,7 +32,7 @@ func goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]in
 }
 
 // GoMod is a command to run go mod tidy and export go.mod and go.sum files.
-func goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
+func (l *List) goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		if err := daggers.ExportGoMod(ctx, c); err != nil {
 			return err
@@ -42,14 +42,14 @@ func goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]int
 }
 
 // GoTest is a command running Go tests.
-func goTest(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
+func (l *List) goTest(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		return daggers.RunGoTests(ctx, c)
 	})
 }
 
 // GoDoc is a command generating Go documentation into readme.md files.
-func goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error {
+func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error {
 	check := false
 	if v, ok := opts["check"]; ok {
 		if b, ok := v.(bool); ok {
@@ -65,7 +65,7 @@ func goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]
 }
 
 // GoBuild is a command to build a Go binary based on the local architecture.
-func goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
+func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
 	var targetName string
 
 	if len(args) == 0 {

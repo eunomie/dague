@@ -14,7 +14,7 @@ import (
 	"github.com/eunomie/dague/config"
 )
 
-func task(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
+func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
 	var taskName string
 	if len(args) == 0 {
 		var taskNames []string
@@ -44,7 +44,18 @@ func task(ctx context.Context, args []string, conf *config.Dague, _ map[string]i
 		return fmt.Errorf("could not find the task %q to run", taskName)
 	}
 
-	return runShell(ctx, task)
+	for _, dep := range task.Deps {
+		cmd := strings.Split(dep, " ")
+		name, args := cmd[0], cmd[1:]
+		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
+			return err
+		}
+	}
+
+	if task.Cmds != "" {
+		return runShell(ctx, task.Cmds)
+	}
+	return nil
 }
 
 func runShell(ctx context.Context, cmd string) error {

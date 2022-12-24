@@ -61,4 +61,9 @@ go:
 # Run arbitrary tasks
 tasks:
   # Map of targets with a shell script to run
-  name: echo this is a task
+  name:
+    # Dependencies to run before this task
+    deps:
+      - go:fmt
+    cmds: |
+      echo this is a task

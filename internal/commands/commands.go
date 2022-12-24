@@ -20,22 +20,22 @@ func notImplemented(_ context.Context, _ []string, _ *config.Dague, _ map[string
 
 func NewList() *List {
 	l := &List{cmds: map[string]Runnable{}}
-	l.register("go:fmt", goFmt)
-	l.register("go:fmt:print", goFmtPrint)
-	l.register("go:fmt:write", goFmtWrite)
-	l.register("go:fmt:imports", goFmtImports)
+	l.register("go:fmt", l.goFmt)
+	l.register("go:fmt:print", l.goFmtPrint)
+	l.register("go:fmt:write", l.goFmtWrite)
+	l.register("go:fmt:imports", l.goFmtImports)
 
-	l.register("go:lint", goLint)
-	l.register("go:lint:govuln", goLintGovuln)
-	l.register("go:lint:golangci", goLintGolangCILint)
+	l.register("go:lint", l.goLint)
+	l.register("go:lint:govuln", l.goLintGovuln)
+	l.register("go:lint:golangci", l.goLintGolangCILint)
 
-	l.register("go:deps", goDeps)
-	l.register("go:mod", goMod)
-	l.register("go:test", goTest)
-	l.register("go:doc", goDoc)
-	l.register("go:build", goBuild)
+	l.register("go:deps", l.goDeps)
+	l.register("go:mod", l.goMod)
+	l.register("go:test", l.goTest)
+	l.register("go:doc", l.goDoc)
+	l.register("go:build", l.goBuild)
 
-	l.register("task", task)
+	l.register("task", l.task)
 	return l
 }
 
