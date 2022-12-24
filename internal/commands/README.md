@@ -19,6 +19,7 @@ import "github.com/eunomie/dague/internal/commands"
   - [func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gobuild>)
   - [func (l *List) goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-godeps>)
   - [func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-godoc>)
+  - [func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goexec>)
   - [func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmt>)
   - [func (l *List) goFmtImports(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmtimports>)
   - [func (l *List) goFmtPrint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmtprint>)
@@ -94,6 +95,12 @@ func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts m
 ```
 
 GoDoc is a command generating Go documentation into readme.md files.
+
+### func \(\*List\) goExec
+
+```go
+func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error
+```
 
 ### func \(\*List\) goFmt
 

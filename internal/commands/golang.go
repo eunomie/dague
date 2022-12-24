@@ -8,6 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"dagger.io/dagger"
+
+	"github.com/eunomie/dague"
+
 	"github.com/AlecAivazis/survey/v2"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -64,6 +68,56 @@ func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts m
 	})
 }
 
+func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
+	var execName string
+	if len(args) == 0 {
+		var execNames []string
+		for k := range conf.Go.Exec {
+			execNames = append(execNames, k)
+		}
+		answer := struct {
+			Exec string
+		}{}
+		if err := survey.Ask([]*survey.Question{
+			{
+				Name: "exec",
+				Prompt: &survey.Select{
+					Message: "Choose the task to run inside build container:",
+					Options: execNames,
+				},
+			},
+		}, &answer); err != nil {
+			return fmt.Errorf("could not select the target to run: %w", err)
+		}
+		execName = answer.Exec
+	} else {
+		execName = args[0]
+	}
+
+	exec, ok := conf.Go.Exec[execName]
+	if !ok {
+		return fmt.Errorf("could not find the target %q to run", execName)
+	}
+
+	for _, dep := range exec.Deps {
+		cmd := strings.Split(dep, " ")
+		name, args := cmd[0], cmd[1:]
+		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
+			return err
+		}
+	}
+
+	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
+		execOpts := dagger.ContainerExecOpts{
+			Args: []string{"sh", "-c", exec.Cmds},
+		}
+		if exec.Export.Path != "" && exec.Export.Pattern != "" {
+			return dague.ExportFilePattern(ctx, daggers.Sources(c).Exec(execOpts), exec.Export.Pattern, exec.Export.Path)
+		}
+		return dague.Exec(ctx, daggers.Sources(c), execOpts)
+	})
+}
+
 // GoBuild is a command to build a Go binary based on the local architecture.
 func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
 	var targetName string
@@ -86,7 +140,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 			Target string
 		}{}
 		if err := survey.Ask(qs, &answer); err != nil {
-			return fmt.Errorf("could not select the target to build")
+			return fmt.Errorf("could not select the target to build: %w", err)
 		}
 		targetName = answer.Target
 	} else {

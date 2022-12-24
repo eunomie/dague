@@ -58,6 +58,22 @@ go:
           - windows/amd64
           - windows/arm64
 
+  # Run arbitrary commands from the inside of the build container
+  exec:
+    # Map of targets to run, with a shell script to exec
+    info:
+      # Dependencies to run before
+      deps:
+        - tasks info
+      # Script to run inside the build container
+      cmds: |
+        uname -a > info.txt
+        go version >> info.txt
+      # Export files to the host
+      export:
+        pattern: "info.txt"
+        path: "."
+
 # Run arbitrary tasks
 tasks:
   # Map of targets with a shell script to run
@@ -67,3 +83,6 @@ tasks:
       - go:fmt
     cmds: |
       echo this is a task
+  info:
+    cmds: |
+      uname -a

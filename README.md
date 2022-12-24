@@ -61,6 +61,39 @@ By default `dague` comes with handy go tools already configured like:
 - `go:test`: run go unit tests with handy defaults (`-race -cover -shuffle=on`)
 - `go:mod`: run `go mod tidy` and update `go.mod` and `go.sum` files
 
+It's also possible to define any script that will be run from the inside of the build container.
+The exec task can also define files to export to the host.
+
+```yaml
+go:
+  exec:
+    info:
+      cmds: |
+        uname -a > info.txt
+        go version >> info.txt
+      export:
+        pattern: info.txt
+        path: .
+```
+
+Then you can run:
+
+```text
+❯ docker dague go:exec info
+# ...
+
+❯ cat info.txt
+Linux buildkitsandbox 5.15.49-linuxkit #1 SMP PREEMPT Tue Sep 13 07:51:32 UTC 2022 aarch64 Linux
+go version go1.19.4 linux/arm64
+```
+
+In comparison, this is the output of `go version` directly on my host:
+
+```text
+❯ go version
+go version go1.19.4 darwin/arm64
+```
+
 You can also define any arbitrary task to be run using `go:task`:
 
 ```yaml

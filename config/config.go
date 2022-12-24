@@ -45,11 +45,21 @@ type (
 		Targets []Target `yaml:"targets"`
 	}
 	Go struct {
-		Image  string `yaml:"image"`
-		AppDir string `yaml:"appDir"`
-		Fmt    Fmt    `yaml:"fmt"`
-		Lint   Lint   `yaml:"lint"`
-		Build  Build  `yaml:"build"`
+		Image  string          `yaml:"image"`
+		AppDir string          `yaml:"appDir"`
+		Fmt    Fmt             `yaml:"fmt"`
+		Lint   Lint            `yaml:"lint"`
+		Build  Build           `yaml:"build"`
+		Exec   map[string]Exec `yaml:"exec"`
+	}
+	Exec struct {
+		Deps   []string `yaml:"deps"`
+		Cmds   string   `yaml:"cmds"`
+		Export Export   `yaml:"export"`
+	}
+	Export struct {
+		Pattern string `yaml:"pattern"`
+		Path    string `yaml:"path"`
 	}
 	Task struct {
 		Deps []string `yaml:"deps"`
