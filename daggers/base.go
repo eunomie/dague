@@ -12,14 +12,24 @@ import (
 //
 // This container is used as the root of many other commands, allowing to share cache as much as possible.
 func GoBase(c *Client) *dagger.Container {
-	return c.Dagger.Container().
-		From(c.Config.Go.Image).
+	base := c.Dagger.Container().
+		From(c.Config.Go.Image.Src).
 		Exec(dague.ApkInstall("build-base", "git")).
 		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
 		Exec(dague.GoInstall("golang.org/x/tools/cmd/goimports@latest")).
-		Exec(dague.GoInstall("mvdan.cc/gofumpt@latest")).
-		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest")).
-		WithWorkdir(c.Config.Go.AppDir)
+		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
+
+	if len(c.Config.Go.Image.ApkPackages) > 0 {
+		base = base.Exec(dague.ApkInstall(c.Config.Go.Image.ApkPackages...))
+	}
+	if len(c.Config.Go.Image.AptPackages) > 0 {
+		base = dague.AptInstall(base, c.Config.Go.Image.AptPackages...)
+	}
+	if len(c.Config.Go.Image.GoPackages) > 0 {
+		base = base.Exec(dague.GoInstall(c.Config.Go.Image.GoPackages...))
+	}
+
+	return base.WithWorkdir(c.Config.Go.AppDir)
 }
 
 // GoDeps mount the Go module files and download the needed dependencies.

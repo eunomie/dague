@@ -28,6 +28,7 @@ import "github.com/eunomie/dague/config"
 - [type Goimports](<#type-goimports>)
 - [type Golangci](<#type-golangci>)
 - [type Govulncheck](<#type-govulncheck>)
+- [type Image](<#type-image>)
 - [type Lint](<#type-lint>)
 - [type Target](<#type-target>)
 - [type Task](<#type-task>)
@@ -168,7 +169,7 @@ type Fmt struct {
 
 ```go
 type Go struct {
-    Image  string          `yaml:"image"`
+    Image  Image           `yaml:"image"`
     AppDir string          `yaml:"appDir"`
     Fmt    Fmt             `yaml:"fmt"`
     Lint   Lint            `yaml:"lint"`
@@ -199,6 +200,17 @@ type Golangci struct {
 ```go
 type Govulncheck struct {
     Enable bool `yaml:"enable"`
+}
+```
+
+## type Image
+
+```go
+type Image struct {
+    Src         string   `yaml:"src"`
+    AptPackages []string `yaml:"aptPackages"`
+    ApkPackages []string `yaml:"apkPackages"`
+    GoPackages  []string `yaml:"goPackages"`
 }
 ```
 
