@@ -17,7 +17,6 @@ import "github.com/eunomie/dague/internal/commands"
   - [func NewList() *List](<#func-newlist>)
   - [func (l *List) Run(name string) Runnable](<#func-list-run>)
   - [func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gobuild>)
-  - [func (l *List) goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-godeps>)
   - [func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-godoc>)
   - [func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goexec>)
   - [func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmt>)
@@ -28,6 +27,7 @@ import "github.com/eunomie/dague/internal/commands"
   - [func (l *List) goLintGolangCILint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-golintgolangcilint>)
   - [func (l *List) goLintGovuln(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-golintgovuln>)
   - [func (l *List) goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gomod>)
+  - [func (l *List) goModDownload(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gomoddownload>)
   - [func (l *List) goTest(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gotest>)
   - [func (l *List) register(name string, runnable Runnable)](<#func-list-register>)
   - [func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-task>)
@@ -78,15 +78,7 @@ func (l *List) Run(name string) Runnable
 func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error
 ```
 
-GoBuild is a command to build a Go binary based on the local architecture.
-
-### func \(\*List\) goDeps
-
-```go
-func (l *List) goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
-```
-
-GoDeps is a command to download go modules.
+goBuild is a command to build a Go binary based on the local architecture.
 
 ### func \(\*List\) goDoc
 
@@ -94,7 +86,7 @@ GoDeps is a command to download go modules.
 func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error
 ```
 
-GoDoc is a command generating Go documentation into readme.md files.
+goDoc is a command generating Go documentation into readme.md files.
 
 ### func \(\*List\) goExec
 
@@ -150,7 +142,15 @@ func (l *List) goLintGovuln(ctx context.Context, _ []string, conf *config.Dague,
 func (l *List) goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
 ```
 
-GoMod is a command to run go mod tidy and export go.mod and go.sum files.
+goMod is a command to run go mod tidy and export go.mod and go.sum files.
+
+### func \(\*List\) goModDownload
+
+```go
+func (l *List) goModDownload(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
+```
+
+goModDownload is a command to download go modules.
 
 ### func \(\*List\) goTest
 
@@ -158,7 +158,7 @@ GoMod is a command to run go mod tidy and export go.mod and go.sum files.
 func (l *List) goTest(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
 ```
 
-GoTest is a command running Go tests.
+goTest is a command running Go tests.
 
 ### func \(\*List\) register
 

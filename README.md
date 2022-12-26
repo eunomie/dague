@@ -35,7 +35,9 @@ You don't need to have the right version of Go or any other dependencies, if you
 
 ## Usage
 
-Create a `.dague.yml` file to configure your build targets.
+Configuration is made using a `.dague.yml` file. This file is mandatory.
+
+### Build Targets
 
 If you want to build a binary from `main/path` to `dist` this is the minimal file you need:
 
@@ -53,13 +55,19 @@ With that, you can run `docker dague go:build local-build` and it will build you
 
 The build is performed inside containers, so you don't have to worry about the needed dependencies, tools, versions, etc.
 
+### Default tools
+
 By default `dague` comes with handy go tools already configured like:
 
-- `go:fmt`: runs `goimports` and `gofumpt` to re-format the code
+- `go:fmt`: runs `goimports` and a formatter (`gofmt` by default, but configurable) to re-format the code
 - `go:lint`: runs `golangci-lint` and `govulncheck`
 - `go:doc`: generate Go documentation in markdown inside README.me files
 - `go:test`: run go unit tests with handy defaults (`-race -cover -shuffle=on`)
 - `go:mod`: run `go mod tidy` and update `go.mod` and `go.sum` files
+
+Some subcommands exist, you can see them using the `--help` flag.
+
+### Arbitrary Task Inside Container
 
 It's also possible to define any script that will be run from the inside of the build container.
 The exec task can also define files to export to the host.
@@ -94,7 +102,9 @@ In comparison, this is the output of `go version` directly on my host:
 go version go1.19.4 darwin/arm64
 ```
 
-You can also define any arbitrary task to be run using `go:task`:
+### Arbitrary Tasks on Host
+
+You can also define any arbitrary task to be run on the host:
 
 ```yaml
 tasks:
@@ -108,6 +118,29 @@ tasks:
 
 The command `docker dague task install` will first run `go:build local` then run the shell script to install the binary.
 The shell script is run using a Go shell implementation so is portable across platforms.
+
+### Base Image Configuration
+
+The base image for go tools can be configured:
+- the image to use
+- apt or apk packages to install
+- go packages to install
+
+For instance, if you want to use `gofumpt` instead of `gofmt`, follow this configuration:
+
+```yaml
+go:
+  image:
+    goPackages:
+      - mvdan.cc/gofumpt@latest
+
+  fmt:
+    formatter: gofumpt
+```
+
+With that, `docker dague go:fmt` (or more specifically `docker dague go:fmt:write`) will now use the specified `gofumpt` formatter instead of the default `gofmt`.
+
+### Reference
 
 To know more about the possibilities and available configuration, please refer to [the configuration reference file](./.dague.reference.yml).
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -21,6 +22,7 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		for k := range conf.Tasks {
 			taskNames = append(taskNames, k)
 		}
+		sort.Strings(taskNames)
 		answer := struct{ Task string }{}
 		err := survey.Ask([]*survey.Question{
 			{

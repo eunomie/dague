@@ -44,8 +44,14 @@ type (
 	Build struct {
 		Targets []Target `yaml:"targets"`
 	}
+	Image struct {
+		Src         string   `yaml:"src"`
+		AptPackages []string `yaml:"aptPackages"`
+		ApkPackages []string `yaml:"apkPackages"`
+		GoPackages  []string `yaml:"goPackages"`
+	}
 	Go struct {
-		Image  string          `yaml:"image"`
+		Image  Image           `yaml:"image"`
 		AppDir string          `yaml:"appDir"`
 		Fmt    Fmt             `yaml:"fmt"`
 		Lint   Lint            `yaml:"lint"`

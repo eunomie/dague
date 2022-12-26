@@ -1,12 +1,25 @@
 # Go related configuration
 go:
   # Base image used to build and run tools
-  image: golang:1.19.4-alpine3.17
+  image:
+    # Source of the image
+    src: golang:1.19.4-alpine3.17
+    # APK packages to install, if alpine based
+    apkPackages:
+      - build-base
+      - git
+    # APT packages to install, if debian based
+    aptPackages:
+      - gcc
+    # Go packages to install
+    goPackages:
+      - mvdan.cc/gofumpt@latest
   # Directory to mount files
   appDir: /go/src
   # Configuration of formatters
   fmt:
-    # Choice of the formatter, can be gofmt or gofumpt
+    # Choice of the formatter. Default if gofmt, but you can install others like gofumpt as package in go.image.goPackages
+    # and then configure it here
     formatter: gofumpt
     # Configuration of goimports tool, that is run before the formatter
     goimports:
