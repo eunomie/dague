@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"dagger.io/dagger"
@@ -75,6 +76,7 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		for k := range conf.Go.Exec {
 			execNames = append(execNames, k)
 		}
+		sort.Strings(execNames)
 		answer := struct {
 			Exec string
 		}{}
@@ -127,6 +129,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		for _, t := range conf.Go.Build.Targets {
 			targetNames = append(targetNames, t.Name)
 		}
+		sort.Strings(targetNames)
 		qs := []*survey.Question{
 			{
 				Name: "target",
