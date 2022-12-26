@@ -27,15 +27,15 @@ import (
 	"github.com/eunomie/dague/types"
 )
 
-// GoDeps is a command to download go modules.
-func (l *List) goDeps(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
+// goModDownload is a command to download go modules.
+func (l *List) goModDownload(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		daggers.GoDeps(c)
 		return nil
 	})
 }
 
-// GoMod is a command to run go mod tidy and export go.mod and go.sum files.
+// goMod is a command to run go mod tidy and export go.mod and go.sum files.
 func (l *List) goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		if err := daggers.ExportGoMod(ctx, c); err != nil {
@@ -45,14 +45,14 @@ func (l *List) goMod(ctx context.Context, _ []string, conf *config.Dague, _ map[
 	})
 }
 
-// GoTest is a command running Go tests.
+// goTest is a command running Go tests.
 func (l *List) goTest(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error {
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
 		return daggers.RunGoTests(ctx, c)
 	})
 }
 
-// GoDoc is a command generating Go documentation into readme.md files.
+// goDoc is a command generating Go documentation into readme.md files.
 func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error {
 	check := false
 	if v, ok := opts["check"]; ok {
@@ -118,7 +118,7 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 	})
 }
 
-// GoBuild is a command to build a Go binary based on the local architecture.
+// goBuild is a command to build a Go binary based on the local architecture.
 func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error {
 	var targetName string
 

@@ -29,8 +29,8 @@ func NewList() *List {
 	l.register("go:lint:govuln", l.goLintGovuln)
 	l.register("go:lint:golangci", l.goLintGolangCILint)
 
-	l.register("go:deps", l.goDeps)
 	l.register("go:mod", l.goMod)
+	l.register("go:mod:download", l.goModDownload)
 	l.register("go:test", l.goTest)
 	l.register("go:doc", l.goDoc)
 	l.register("go:build", l.goBuild)

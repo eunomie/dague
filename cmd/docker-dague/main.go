@@ -72,74 +72,89 @@ func pluginMain() {
 			},
 			&cobra.Command{
 				Use:   "go:lint",
-				Short: "Lint Go code",
-				Args:  cobra.NoArgs,
+				Short: "Lint Go code (--help for subcommands)",
+				Long: `Subcommands:
+  go:lint:govuln   Lint Go code using govulncheck
+  go:lint:golangci Lint Go code using golangci`,
+				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:lint")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:lint:govuln",
-				Short: "Lint Go code using govulncheck",
-				Args:  cobra.NoArgs,
+				Use:    "go:lint:govuln",
+				Hidden: true,
+				Short:  "Lint Go code using govulncheck",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:lint:govuln")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:lint:golangci",
-				Short: "Lint Go code using golangci",
-				Args:  cobra.NoArgs,
+				Use:    "go:lint:golangci",
+				Hidden: true,
+				Short:  "Lint Go code using golangci",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:lint:golangci")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
 				Use:   "go:fmt",
-				Short: "Format files and imports",
-				Args:  cobra.NoArgs,
+				Short: "Format files and imports (--help for subcommands)",
+				Long: `Subcommands:
+  go:fmt:print     Print result of configured Go formatter
+  go:fmt:write     Write result of configured Go formatter
+  go:fmt:imports   Reorder imports using configured locals`,
+				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:fmt")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:fmt:print",
-				Short: "Print result of go formatter",
-				Args:  cobra.NoArgs,
+				Use:    "go:fmt:print",
+				Hidden: true,
+				Short:  "Print result of go formatter",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:fmt:print")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:fmt:write",
-				Short: "Write result of go formatter to existing files",
-				Args:  cobra.NoArgs,
+				Use:    "go:fmt:write",
+				Hidden: true,
+				Short:  "Write result of go formatter to existing files",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:fmt:write")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:fmt:imports",
-				Short: "Reorder imports",
-				Args:  cobra.NoArgs,
+				Use:    "go:fmt:imports",
+				Hidden: true,
+				Short:  "Reorder imports",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return l.Run("go:fmt:imports")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:deps",
-				Short: "Download go modules",
-				Args:  cobra.NoArgs,
+				Use:   "go:mod",
+				Short: "Run go mod download and go mod tidy (--help for subcommands)",
+				Long: `Subcommands:
+  go:mod:download  Download go modules`,
+				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:deps")(cmd.Context(), args, &conf, nil)
+					return l.Run("go:mod")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
-				Use:   "go:mod MODULES...",
-				Short: "Run go mod tidy and export go.mod and go.sum files",
-				Args:  cobra.NoArgs,
+				Use:    "go:mode:download",
+				Hidden: true,
+				Short:  "Download go modules",
+				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:mod")(cmd.Context(), args, &conf, nil)
+					return l.Run("go:mod:download")(cmd.Context(), args, &conf, nil)
 				},
 			},
 			&cobra.Command{
