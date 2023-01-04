@@ -55,8 +55,8 @@ go:
         env:
           # Could be a static value
           CGO_ENABLED: 0
-          # Or a shell command to execute, if starts with $
-          GIT_COMMIT: $ git describe --tags | cut -c 2-
+          # Or a shell command to execute, if starts with shell
+          GIT_COMMIT: shell git describe --tags | cut -c 2-
         # Ldflags to use to build. Environment variable will be expanded.
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${GIT_COMMIT:-dev}'
       - << : *dague-build # Copy all from above target and specify some values

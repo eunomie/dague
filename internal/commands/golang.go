@@ -1,27 +1,19 @@
 package commands
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/eunomie/dague/internal/shell"
 
 	"dagger.io/dagger"
 
 	"github.com/eunomie/dague"
 
 	"github.com/AlecAivazis/survey/v2"
-
-	"mvdan.cc/sh/v3/syntax"
-
-	"mvdan.cc/sh/v3/expand"
-
-	"mvdan.cc/sh/v3/interp"
-
-	"mvdan.cc/sh/v3/shell"
 
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
@@ -166,9 +158,9 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 	env := map[string]string{}
 
 	for k, v := range target.Env {
-		if strings.HasPrefix(v, "$ ") {
-			shellCmd := strings.TrimPrefix(v, "$ ")
-			value, err := interpretShell(ctx, shellCmd, env)
+		if strings.HasPrefix(v, "shell ") {
+			shellCmd := strings.TrimPrefix(v, "shell ")
+			value, err := shell.Interpret(ctx, shellCmd, env)
 			if err != nil {
 				return err
 			}
@@ -180,9 +172,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 
 	var buildFlags []string
 	if target.Ldflags != "" {
-		flags, err := shell.Expand(target.Ldflags, func(s string) string {
-			return env[s]
-		})
+		flags, err := shell.Expand(target.Ldflags, env)
 		if err != nil {
 			return err
 		}
@@ -220,28 +210,4 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 			Platforms:     platforms,
 		})
 	})
-}
-
-func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error) {
-	script, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
-	if err != nil {
-		return "", err
-	}
-
-	out := bytes.NewBufferString("")
-
-	pairs := os.Environ()
-	for k, v := range env {
-		pairs = append(pairs, fmt.Sprintf("%s=%s", k, v))
-	}
-	runner, err := interp.New(interp.Env(expand.ListEnviron(pairs...)), interp.StdIO(nil, out, out))
-	if err != nil {
-		return "", err
-	}
-
-	if err = runner.Run(ctx, script); err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(out.String()), nil
 }

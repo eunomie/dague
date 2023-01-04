@@ -18,7 +18,7 @@ go:
         path: ./cmd/docker-dague
         env:
           CGO_ENABLED: 0
-          GIT_COMMIT: $ git describe --tags | cut -c 2-
+          GIT_COMMIT: shell git describe --tags | cut -c 2-
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${GIT_COMMIT:-dev}'
       - << : *dague-build
         name: cross
