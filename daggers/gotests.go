@@ -13,7 +13,7 @@ func RunGoTests(ctx context.Context, c *Client) error {
 		ctx,
 		Sources(c),
 		dagger.ContainerExecOpts{
-			Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "./..."},
+			Args: []string{"go", "test", "-race", "-cover", "-shuffle=on", "-v", "./..."},
 		},
 	)
 }
