@@ -80,6 +80,9 @@ jobs:
           dry_run: true
           release_branches: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      # create a temporary tag for the build to get the right version
+      - name: Tag
+        run: git tag v${{ steps.new_version.outputs.new_version }}
       - name: Cross build binaries
         run: chmod +x ./docker-dague; ./docker-dague dague go:build cross
       - name: Upload artifacts
