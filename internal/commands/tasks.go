@@ -54,5 +54,5 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 	if task.Cmds == "" {
 		return nil
 	}
-	return shell.Run(ctx, task.Cmds, nil)
+	return shell.Run(ctx, task.Cmds, conf.Vars)
 }

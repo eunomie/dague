@@ -29,7 +29,11 @@ func GolangCILint(ctx context.Context, c *Client) error {
 }
 
 func GolangCILintBase(c *Client) *dagger.Container {
-	return c.Dagger.Container().
+	base := c.Dagger.Container().
 		From(c.Config.Go.Lint.Golangci.Image).
 		WithWorkdir(c.Config.Go.AppDir)
+
+	base = applyBase(base, c.Dagger, c.Config)
+
+	return base
 }

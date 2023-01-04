@@ -19,6 +19,8 @@ func GoBase(c *Client) *dagger.Container {
 		Exec(dague.GoInstall("golang.org/x/tools/cmd/goimports@latest")).
 		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
 
+	base = applyBase(base, c.Dagger, c.Config)
+
 	if len(c.Config.Go.Image.ApkPackages) > 0 {
 		base = base.Exec(dague.ApkInstall(c.Config.Go.Image.ApkPackages...))
 	}

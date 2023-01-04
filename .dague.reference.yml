@@ -1,3 +1,10 @@
+# Any variables you need to define all the other content
+vars:
+  # It can be a static value
+  IMAGE_NAME: my_image
+  # Or any output of a shell script if starting with 'shell'
+  HOST_GOCACHE: shell go env GOCACHE
+
 # Go related configuration
 go:
   # Base image used to build and run tools
@@ -14,6 +21,17 @@ go:
     # Go packages to install
     goPackages:
       - mvdan.cc/gofumpt@latest
+    # Caches to use
+    caches:
+      - target: /go/pkg
+    # Mount points
+    mounts:
+      # Key can be expanded using env variables or top level variables
+      ${HOST_GOCACHE}: /cache/go
+    # Environment variables for the base images
+    env:
+      GOCACHE: /cache/go
+
   # Directory to mount files
   appDir: /go/src
   # Configuration of formatters

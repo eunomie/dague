@@ -155,7 +155,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		return fmt.Errorf("could not find the target %q to build", targetName)
 	}
 
-	env := map[string]string{}
+	env := conf.VarsDup()
 
 	for k, v := range target.Env {
 		if strings.HasPrefix(v, "shell ") {
