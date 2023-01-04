@@ -16,7 +16,6 @@ go:
         name: local
         type: local
         path: ./cmd/docker-dague
-        out: ./dist
         env:
           CGO_ENABLED: 0
           GIT_COMMIT: $ git describe --tags | cut -c 2-

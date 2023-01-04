@@ -189,10 +189,14 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		buildFlags = append(buildFlags, "-ldflags="+flags)
 	}
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
+		out := target.Out
+		if out == "" {
+			out = "./dist"
+		}
 		if target.Type == "local" {
 			return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
 				BuildOpts: types.BuildOpts{
-					Dir:        target.Out,
+					Dir:        out,
 					In:         target.Path,
 					EnvVars:    env,
 					BuildFlags: buildFlags,
@@ -207,7 +211,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		}
 		return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
 			BuildOpts: types.BuildOpts{
-				Dir:        target.Out,
+				Dir:        out,
 				In:         target.Path,
 				EnvVars:    env,
 				BuildFlags: buildFlags,
