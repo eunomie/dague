@@ -9,6 +9,7 @@ import (
 	"github.com/eunomie/dague/internal/shell"
 
 	"github.com/AlecAivazis/survey/v2"
+
 	"github.com/eunomie/dague/config"
 )
 

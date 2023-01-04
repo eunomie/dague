@@ -30,6 +30,7 @@ import "github.com/eunomie/dague/daggers"
 - [func RunInDagger(ctx context.Context, conf *config.Dague, do func(*Client) error) error](<#func-runindagger>)
 - [func Sources(c *Client) *dagger.Container](<#func-sources>)
 - [func SourcesNoDeps(c *Client) *dagger.Container](<#func-sourcesnodeps>)
+- [func applyBase(cont *dagger.Container, c *dagger.Client, conf *config.Dague) *dagger.Container](<#func-applybase>)
 - [func formatPrint(formatter string) dagger.ContainerExecOpts](<#func-formatprint>)
 - [func formatWrite(formatter string) dagger.ContainerExecOpts](<#func-formatwrite>)
 - [func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
@@ -171,6 +172,12 @@ func SourcesNoDeps(c *Client) *dagger.Container
 ```
 
 SourcesNoDeps is a container including all the source code, but without the Go modules downloaded. It can be helpful with projects where dependencies are vendored but also just minimise the number of steps when it's not required.
+
+## func applyBase
+
+```go
+func applyBase(cont *dagger.Container, c *dagger.Client, conf *config.Dague) *dagger.Container
+```
 
 ## func formatPrint
 

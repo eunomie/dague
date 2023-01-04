@@ -19,8 +19,10 @@ import "github.com/eunomie/dague/config"
 - [func describe(i interface{}) string](<#func-describe>)
 - [func merge(into, from interface{}, strict bool) (interface{}, error)](<#func-merge>)
 - [type Build](<#type-build>)
+- [type Cache](<#type-cache>)
 - [type Dague](<#type-dague>)
-  - [func Load() (Dague, error)](<#func-load>)
+  - [func Load(ctx context.Context) (Dague, error)](<#func-load>)
+  - [func (d *Dague) VarsDup() map[string]string](<#func-dague-varsdup>)
 - [type Exec](<#type-exec>)
 - [type Export](<#type-export>)
 - [type Fmt](<#type-fmt>)
@@ -122,19 +124,34 @@ type Build struct {
 }
 ```
 
+## type Cache
+
+```go
+type Cache struct {
+    Target string `yaml:"target"`
+}
+```
+
 ## type Dague
 
 ```go
 type Dague struct {
-    Go    Go    `yaml:"go"`
-    Tasks Tasks `yaml:"tasks"`
+    Go    Go                `yaml:"go"`
+    Tasks Tasks             `yaml:"tasks"`
+    Vars  map[string]string `yaml:"vars"`
 }
 ```
 
 ### func Load
 
 ```go
-func Load() (Dague, error)
+func Load(ctx context.Context) (Dague, error)
+```
+
+### func \(\*Dague\) VarsDup
+
+```go
+func (d *Dague) VarsDup() map[string]string
 ```
 
 ## type Exec
@@ -207,10 +224,13 @@ type Govulncheck struct {
 
 ```go
 type Image struct {
-    Src         string   `yaml:"src"`
-    AptPackages []string `yaml:"aptPackages"`
-    ApkPackages []string `yaml:"apkPackages"`
-    GoPackages  []string `yaml:"goPackages"`
+    Src         string            `yaml:"src"`
+    AptPackages []string          `yaml:"aptPackages"`
+    ApkPackages []string          `yaml:"apkPackages"`
+    GoPackages  []string          `yaml:"goPackages"`
+    Mounts      map[string]string `yaml:"mounts"`
+    Env         map[string]string `yaml:"env"`
+    Caches      []Cache           `yaml:"caches"`
 }
 ```
 
