@@ -9,8 +9,6 @@ import (
 
 	"github.com/eunomie/dague/internal/shell"
 
-	"dagger.io/dagger"
-
 	"github.com/eunomie/dague"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -102,13 +100,11 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 	}
 
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
-		execOpts := dagger.ContainerExecOpts{
-			Args: []string{"sh", "-c", exec.Cmds},
-		}
+		cmdArgs := []string{"sh", "-c", exec.Cmds}
 		if exec.Export.Path != "" && exec.Export.Pattern != "" {
-			return dague.ExportFilePattern(ctx, daggers.Sources(c).Exec(execOpts), exec.Export.Pattern, exec.Export.Path)
+			return dague.ExportFilePattern(ctx, daggers.Sources(c).WithExec(cmdArgs), exec.Export.Pattern, exec.Export.Path)
 		}
-		return dague.Exec(ctx, daggers.Sources(c), execOpts)
+		return dague.Exec(ctx, daggers.Sources(c), cmdArgs)
 	})
 }
 
