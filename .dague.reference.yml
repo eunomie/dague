@@ -61,10 +61,7 @@ go:
   build:
     # List of targets to build by their name
     targets:
-      - &dague-build # This identifier will be re-used to avoid duplication
-        name: local
-        # Type can be local (using local os and arch as target) or cross (to enable multi-platform builds)
-        type: local
+      local: &dague-build # This identifier will be re-used to avoid duplication (optional)
         # Relative path to build
         path: ./cmd/docker-dague
         # Relative folder to put the generate files
@@ -77,9 +74,8 @@ go:
           GIT_COMMIT: shell git describe --tags | cut -c 2-
         # Ldflags to use to build. Environment variable will be expanded.
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${GIT_COMMIT:-dev}'
-      - << : *dague-build # Copy all from above target and specify some values
-        name: cross
-        type: cross
+      cross:
+        << : *dague-build # Copy all from above target and specify some values
         # Defines the list of platforms to build
         platforms:
           - linux/amd64

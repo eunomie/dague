@@ -37,8 +37,6 @@ type (
 		Golangci    Golangci    `yaml:"golangci"`
 	}
 	Target struct {
-		Name      string            `yaml:"name"`
-		Type      string            `yaml:"type"`
 		Path      string            `yaml:"path"`
 		Out       string            `yaml:"out"`
 		Env       map[string]string `yaml:"env"`
@@ -46,7 +44,7 @@ type (
 		Platforms []string          `yaml:"platforms,omitempty"`
 	}
 	Build struct {
-		Targets []Target `yaml:"targets"`
+		Targets map[string]Target `yaml:"targets"`
 	}
 	Image struct {
 		Src         string            `yaml:"src"`

@@ -120,7 +120,7 @@ func merge(into, from interface{}, strict bool) (interface{}, error)
 
 ```go
 type Build struct {
-    Targets []Target `yaml:"targets"`
+    Targets map[string]Target `yaml:"targets"`
 }
 ```
 
@@ -247,8 +247,6 @@ type Lint struct {
 
 ```go
 type Target struct {
-    Name      string            `yaml:"name"`
-    Type      string            `yaml:"type"`
     Path      string            `yaml:"path"`
     Out       string            `yaml:"out"`
     Env       map[string]string `yaml:"env"`

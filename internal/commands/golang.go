@@ -118,8 +118,8 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 
 	if len(args) == 0 {
 		var targetNames []string
-		for _, t := range conf.Go.Build.Targets {
-			targetNames = append(targetNames, t.Name)
+		for k := range conf.Go.Build.Targets {
+			targetNames = append(targetNames, k)
 		}
 		sort.Strings(targetNames)
 		qs := []*survey.Question{
@@ -142,15 +142,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		targetName = args[0]
 	}
 
-	var target config.Target
-	var ok bool
-	for _, t := range conf.Go.Build.Targets {
-		if t.Name == targetName {
-			target = t
-			ok = true
-			break
-		}
-	}
+	target, ok := conf.Go.Build.Targets[targetName]
 	if !ok {
 		return fmt.Errorf("could not find the target %q to build", targetName)
 	}
@@ -183,7 +175,8 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		if out == "" {
 			out = "./dist"
 		}
-		if target.Type == "local" {
+		if len(target.Platforms) == 0 {
+			// if platforms is not defined then we admit it's a local build
 			return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
 				BuildOpts: types.BuildOpts{
 					Dir:        out,
