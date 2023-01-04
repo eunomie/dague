@@ -136,9 +136,9 @@ type Cache struct {
 
 ```go
 type Dague struct {
+    Vars  map[string]string `yaml:"vars"`
     Go    Go                `yaml:"go"`
     Tasks Tasks             `yaml:"tasks"`
-    Vars  map[string]string `yaml:"vars"`
 }
 ```
 

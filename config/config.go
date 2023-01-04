@@ -14,38 +14,20 @@ import (
 
 type (
 	Dague struct {
+		Vars  map[string]string `yaml:"vars"`
 		Go    Go                `yaml:"go"`
 		Tasks Tasks             `yaml:"tasks"`
-		Vars  map[string]string `yaml:"vars"`
 	}
-	Goimports struct {
-		Locals []string `yaml:"locals"`
+
+	Go struct {
+		Image  Image           `yaml:"image"`
+		AppDir string          `yaml:"appDir"`
+		Fmt    Fmt             `yaml:"fmt"`
+		Lint   Lint            `yaml:"lint"`
+		Build  Build           `yaml:"build"`
+		Exec   map[string]Exec `yaml:"exec"`
 	}
-	Fmt struct {
-		Formatter string    `yaml:"formatter"`
-		Goimports Goimports `yaml:"goimports"`
-	}
-	Govulncheck struct {
-		Enable bool `yaml:"enable"`
-	}
-	Golangci struct {
-		Enable bool   `yaml:"enable"`
-		Image  string `yaml:"image"`
-	}
-	Lint struct {
-		Govulncheck Govulncheck `yaml:"govulncheck"`
-		Golangci    Golangci    `yaml:"golangci"`
-	}
-	Target struct {
-		Path      string            `yaml:"path"`
-		Out       string            `yaml:"out"`
-		Env       map[string]string `yaml:"env"`
-		Ldflags   string            `yaml:"ldflags"`
-		Platforms []string          `yaml:"platforms,omitempty"`
-	}
-	Build struct {
-		Targets map[string]Target `yaml:"targets"`
-	}
+
 	Image struct {
 		Src         string            `yaml:"src"`
 		AptPackages []string          `yaml:"aptPackages"`
@@ -55,30 +37,62 @@ type (
 		Env         map[string]string `yaml:"env"`
 		Caches      []Cache           `yaml:"caches"`
 	}
-	Go struct {
-		Image  Image           `yaml:"image"`
-		AppDir string          `yaml:"appDir"`
-		Fmt    Fmt             `yaml:"fmt"`
-		Lint   Lint            `yaml:"lint"`
-		Build  Build           `yaml:"build"`
-		Exec   map[string]Exec `yaml:"exec"`
+
+	Cache struct {
+		Target string `yaml:"target"`
 	}
+
+	Fmt struct {
+		Formatter string    `yaml:"formatter"`
+		Goimports Goimports `yaml:"goimports"`
+	}
+
+	Goimports struct {
+		Locals []string `yaml:"locals"`
+	}
+
+	Lint struct {
+		Govulncheck Govulncheck `yaml:"govulncheck"`
+		Golangci    Golangci    `yaml:"golangci"`
+	}
+
+	Govulncheck struct {
+		Enable bool `yaml:"enable"`
+	}
+
+	Golangci struct {
+		Enable bool   `yaml:"enable"`
+		Image  string `yaml:"image"`
+	}
+
+	Build struct {
+		Targets map[string]Target `yaml:"targets"`
+	}
+
+	Target struct {
+		Path      string            `yaml:"path"`
+		Out       string            `yaml:"out"`
+		Env       map[string]string `yaml:"env"`
+		Ldflags   string            `yaml:"ldflags"`
+		Platforms []string          `yaml:"platforms,omitempty"`
+	}
+
 	Exec struct {
 		Deps   []string `yaml:"deps"`
 		Cmds   string   `yaml:"cmds"`
 		Export Export   `yaml:"export"`
 	}
+
 	Export struct {
 		Pattern string `yaml:"pattern"`
 		Path    string `yaml:"path"`
 	}
+
+	Tasks map[string]Task
+
 	Task struct {
 		Deps []string `yaml:"deps"`
 		Cmds string   `yaml:"cmds"`
-	}
-	Tasks map[string]Task
-	Cache struct {
-		Target string `yaml:"target"`
 	}
 )
 
