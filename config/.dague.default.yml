@@ -1,6 +1,13 @@
 go:
   image:
     src: golang:1.19.4-alpine3.17
+    caches:
+      - target: /cache/go
+      - target: /go/pkg
+    env:
+      GOCACHE: /cache/go
+      GOLANGCI_LINT_CACHE: /cache/go
+
   appDir: /go/src
   fmt:
     formatter: gofmt

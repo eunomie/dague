@@ -10,9 +10,7 @@ import "github.com/eunomie/dague/internal/commands"
 
 ## Index
 
-- [func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)](<#func-interpretshell>)
 - [func notImplemented(_ context.Context, _ []string, _ *config.Dague, _ map[string]interface{}) error](<#func-notimplemented>)
-- [func runShell(ctx context.Context, cmd string) error](<#func-runshell>)
 - [type List](<#type-list>)
   - [func NewList() *List](<#func-newlist>)
   - [func (l *List) Run(name string) Runnable](<#func-list-run>)
@@ -34,22 +32,10 @@ import "github.com/eunomie/dague/internal/commands"
 - [type Runnable](<#type-runnable>)
 
 
-## func interpretShell
-
-```go
-func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error)
-```
-
 ## func notImplemented
 
 ```go
 func notImplemented(_ context.Context, _ []string, _ *config.Dague, _ map[string]interface{}) error
-```
-
-## func runShell
-
-```go
-func runShell(ctx context.Context, cmd string) error
 ```
 
 ## type List

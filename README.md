@@ -39,21 +39,21 @@ Configuration is made using a `.dague.yml` file. This file is mandatory.
 
 ### Build Targets
 
-If you want to build a binary from `main/path` to `dist` this is the minimal file you need:
+If you want to build a binary from `main/path` to `.dist/` this is the minimal file you need:
 
 ```yaml
 go:
   build:
     targets:
-      - name: local-build
-        type: local # to allow local build, can be 'cross' to enable cross platform build
+      local-build:
         path: ./main/path
-        out: ./dist
 ```
 
 With that, you can run `docker dague go:build local-build` and it will build your binary and put it under `./dist/`.
 
 The build is performed inside containers, so you don't have to worry about the needed dependencies, tools, versions, etc.
+
+If you want to configure the output directory, set the `out` key.
 
 ### Default tools
 
@@ -125,6 +125,9 @@ The base image for go tools can be configured:
 - the image to use
 - apt or apk packages to install
 - go packages to install
+- mount directories
+- environment variables
+- caches
 
 For instance, if you want to use `gofumpt` instead of `gofmt`, follow this configuration:
 
@@ -139,6 +142,18 @@ go:
 ```
 
 With that, `docker dague go:fmt` (or more specifically `docker dague go:fmt:write`) will now use the specified `gofumpt` formatter instead of the default `gofmt`.
+
+```yaml
+go:
+  image:
+     caches:
+        - target: /cache/go
+     env:
+        GOCACHE: /cache/go
+        GOLANGCI_LINT_CACHE: /cache/go
+```
+
+With that, a cache will be mounted and two environment variables are set to reflect it.
 
 ### Reference
 
@@ -156,24 +171,24 @@ import "github.com/eunomie/dague"
 
 ## Index
 
-- [func ApkInstall(packages ...string) dagger.ContainerExecOpts](<#func-apkinstall>)
+- [func ApkInstall(packages ...string) []string](<#func-apkinstall>)
 - [func AptInstall(cont *dagger.Container, packages ...string) *dagger.Container](<#func-aptinstall>)
-- [func Exec(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) error](<#func-exec>)
+- [func Exec(ctx context.Context, src *dagger.Container, args []string) error](<#func-exec>)
 - [func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, path string) error](<#func-exportfilepattern>)
-- [func GoInstall(packages ...string) dagger.ContainerExecOpts](<#func-goinstall>)
+- [func GoInstall(packages ...string) []string](<#func-goinstall>)
 - [func RunInDagger(ctx context.Context, do func(*dagger.Client) error) error](<#func-runindagger>)
 
 
 ## func ApkInstall
 
 ```go
-func ApkInstall(packages ...string) dagger.ContainerExecOpts
+func ApkInstall(packages ...string) []string
 ```
 
 ApkInstall runs the apk add command with the specified packaged, to install packages on alpine based systems. Example:
 
 ```
-c.Container().From("alpine").Exec(ApkInstall("build-base"))
+c.Container().From("alpine").WithExec(ApkInstall("build-base"))
 ```
 
 ## func AptInstall
@@ -191,15 +206,13 @@ dague.AptInstall(c.Container().From("debian"), "gcc", "git")
 ## func Exec
 
 ```go
-func Exec(ctx context.Context, src *dagger.Container, opts dagger.ContainerExecOpts) error
+func Exec(ctx context.Context, src *dagger.Container, args []string) error
 ```
 
 Exec runs the specified command and check the error and exit code. Example:
 
 ```
-err := dague.Exec(ctx, c.Container().From("golang"), dagger.ContainerExecOpts{
-    Args: []string{"go", "build"},
-})
+err := dague.Exec(ctx, c.Container().From("golang"), []string{"go", "build"})
 ```
 
 ## func ExportFilePattern
@@ -211,13 +224,13 @@ func ExportFilePattern(ctx context.Context, cont *dagger.Container, pattern, pat
 ## func GoInstall
 
 ```go
-func GoInstall(packages ...string) dagger.ContainerExecOpts
+func GoInstall(packages ...string) []string
 ```
 
 GoInstall installs the specified go packages. Example:
 
 ```
-c.Container().From("golang").Exec(GoInstall("golang.org/x/vuln/cmd/govulncheck@latest"))
+c.Container().From("golang").WithExec(GoInstall("golang.org/x/vuln/cmd/govulncheck@latest"))
 ```
 
 ## func RunInDagger

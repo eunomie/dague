@@ -1,27 +1,17 @@
 package commands
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"dagger.io/dagger"
+	"github.com/eunomie/dague/internal/shell"
 
 	"github.com/eunomie/dague"
 
 	"github.com/AlecAivazis/survey/v2"
-
-	"mvdan.cc/sh/v3/syntax"
-
-	"mvdan.cc/sh/v3/expand"
-
-	"mvdan.cc/sh/v3/interp"
-
-	"mvdan.cc/sh/v3/shell"
 
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
@@ -110,13 +100,11 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 	}
 
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
-		execOpts := dagger.ContainerExecOpts{
-			Args: []string{"sh", "-c", exec.Cmds},
-		}
+		cmdArgs := []string{"sh", "-c", exec.Cmds}
 		if exec.Export.Path != "" && exec.Export.Pattern != "" {
-			return dague.ExportFilePattern(ctx, daggers.Sources(c).Exec(execOpts), exec.Export.Pattern, exec.Export.Path)
+			return dague.ExportFilePattern(ctx, daggers.Sources(c).WithExec(cmdArgs), exec.Export.Pattern, exec.Export.Path)
 		}
-		return dague.Exec(ctx, daggers.Sources(c), execOpts)
+		return dague.Exec(ctx, daggers.Sources(c), cmdArgs)
 	})
 }
 
@@ -126,8 +114,8 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 
 	if len(args) == 0 {
 		var targetNames []string
-		for _, t := range conf.Go.Build.Targets {
-			targetNames = append(targetNames, t.Name)
+		for k := range conf.Go.Build.Targets {
+			targetNames = append(targetNames, k)
 		}
 		sort.Strings(targetNames)
 		qs := []*survey.Question{
@@ -150,25 +138,17 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		targetName = args[0]
 	}
 
-	var target config.Target
-	var ok bool
-	for _, t := range conf.Go.Build.Targets {
-		if t.Name == targetName {
-			target = t
-			ok = true
-			break
-		}
-	}
+	target, ok := conf.Go.Build.Targets[targetName]
 	if !ok {
 		return fmt.Errorf("could not find the target %q to build", targetName)
 	}
 
-	env := map[string]string{}
+	env := conf.VarsDup()
 
 	for k, v := range target.Env {
-		if strings.HasPrefix(v, "$ ") {
-			shellCmd := strings.TrimPrefix(v, "$ ")
-			value, err := interpretShell(ctx, shellCmd, env)
+		if strings.HasPrefix(v, "shell ") {
+			shellCmd := strings.TrimPrefix(v, "shell ")
+			value, err := shell.Interpret(ctx, shellCmd, env)
 			if err != nil {
 				return err
 			}
@@ -180,19 +160,22 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 
 	var buildFlags []string
 	if target.Ldflags != "" {
-		flags, err := shell.Expand(target.Ldflags, func(s string) string {
-			return env[s]
-		})
+		flags, err := shell.Expand(target.Ldflags, env)
 		if err != nil {
 			return err
 		}
 		buildFlags = append(buildFlags, "-ldflags="+flags)
 	}
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
-		if target.Type == "local" {
+		out := target.Out
+		if out == "" {
+			out = "./dist"
+		}
+		if len(target.Platforms) == 0 {
+			// if platforms is not defined then we admit it's a local build
 			return daggers.LocalBuild(ctx, c, types.LocalBuildOpts{
 				BuildOpts: types.BuildOpts{
-					Dir:        target.Out,
+					Dir:        out,
 					In:         target.Path,
 					EnvVars:    env,
 					BuildFlags: buildFlags,
@@ -207,7 +190,7 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		}
 		return daggers.CrossBuild(ctx, c, types.CrossBuildOpts{
 			BuildOpts: types.BuildOpts{
-				Dir:        target.Out,
+				Dir:        out,
 				In:         target.Path,
 				EnvVars:    env,
 				BuildFlags: buildFlags,
@@ -216,28 +199,4 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 			Platforms:     platforms,
 		})
 	})
-}
-
-func interpretShell(ctx context.Context, cmd string, env map[string]string) (string, error) {
-	script, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
-	if err != nil {
-		return "", err
-	}
-
-	out := bytes.NewBufferString("")
-
-	pairs := os.Environ()
-	for k, v := range env {
-		pairs = append(pairs, fmt.Sprintf("%s=%s", k, v))
-	}
-	runner, err := interp.New(interp.Env(expand.ListEnviron(pairs...)), interp.StdIO(nil, out, out))
-	if err != nil {
-		return "", err
-	}
-
-	if err = runner.Run(ctx, script); err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(out.String()), nil
 }

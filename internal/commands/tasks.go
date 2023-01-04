@@ -3,14 +3,12 @@ package commands
 import (
 	"context"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
+	"github.com/eunomie/dague/internal/shell"
+
 	"github.com/AlecAivazis/survey/v2"
-	"mvdan.cc/sh/v3/expand"
-	"mvdan.cc/sh/v3/interp"
-	"mvdan.cc/sh/v3/syntax"
 
 	"github.com/eunomie/dague/config"
 )
@@ -54,22 +52,8 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		}
 	}
 
-	if task.Cmds != "" {
-		return runShell(ctx, task.Cmds)
+	if task.Cmds == "" {
+		return nil
 	}
-	return nil
-}
-
-func runShell(ctx context.Context, cmd string) error {
-	script, err := syntax.NewParser().Parse(strings.NewReader(cmd), "")
-	if err != nil {
-		return err
-	}
-
-	runner, err := interp.New(interp.Env(expand.ListEnviron(os.Environ()...)), interp.StdIO(nil, os.Stdout, os.Stderr))
-	if err != nil {
-		return err
-	}
-
-	return runner.Run(ctx, script)
+	return shell.Run(ctx, task.Cmds, conf.Vars)
 }

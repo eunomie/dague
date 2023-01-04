@@ -30,13 +30,14 @@ import "github.com/eunomie/dague/daggers"
 - [func RunInDagger(ctx context.Context, conf *config.Dague, do func(*Client) error) error](<#func-runindagger>)
 - [func Sources(c *Client) *dagger.Container](<#func-sources>)
 - [func SourcesNoDeps(c *Client) *dagger.Container](<#func-sourcesnodeps>)
-- [func formatPrint(formatter string) dagger.ContainerExecOpts](<#func-formatprint>)
-- [func formatWrite(formatter string) dagger.ContainerExecOpts](<#func-formatwrite>)
+- [func applyBase(cont *dagger.Container, c *dagger.Client, conf *config.Dague) *dagger.Container](<#func-applybase>)
+- [func formatPrint(formatter string) []string](<#func-formatprint>)
+- [func formatWrite(formatter string) []string](<#func-formatwrite>)
 - [func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
-- [func goImports(locals []string) dagger.ContainerExecOpts](<#func-goimports>)
-- [func goModDownload() dagger.ContainerExecOpts](<#func-gomoddownload>)
+- [func goImports(locals []string) []string](<#func-goimports>)
+- [func goModDownload() []string](<#func-gomoddownload>)
 - [func goModFiles(c *Client) *dagger.Directory](<#func-gomodfiles>)
-- [func goModTidy() dagger.ContainerExecOpts](<#func-gomodtidy>)
+- [func goModTidy() []string](<#func-gomodtidy>)
 - [func sources(c *Client, cont *dagger.Container) *dagger.Container](<#func-sources>)
 - [type Client](<#type-client>)
   - [func NewClient(c *dagger.Client, conf *config.Dague) *Client](<#func-newclient>)
@@ -172,16 +173,22 @@ func SourcesNoDeps(c *Client) *dagger.Container
 
 SourcesNoDeps is a container including all the source code, but without the Go modules downloaded. It can be helpful with projects where dependencies are vendored but also just minimise the number of steps when it's not required.
 
+## func applyBase
+
+```go
+func applyBase(cont *dagger.Container, c *dagger.Client, conf *config.Dague) *dagger.Container
+```
+
 ## func formatPrint
 
 ```go
-func formatPrint(formatter string) dagger.ContainerExecOpts
+func formatPrint(formatter string) []string
 ```
 
 ## func formatWrite
 
 ```go
-func formatWrite(formatter string) dagger.ContainerExecOpts
+func formatWrite(formatter string) []string
 ```
 
 ## func goBuild
@@ -193,13 +200,13 @@ func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch str
 ## func goImports
 
 ```go
-func goImports(locals []string) dagger.ContainerExecOpts
+func goImports(locals []string) []string
 ```
 
 ## func goModDownload
 
 ```go
-func goModDownload() dagger.ContainerExecOpts
+func goModDownload() []string
 ```
 
 GoModDownload runs the go mod download command.
@@ -215,7 +222,7 @@ GoModFiles creates a directory containing the default go mod files.
 ## func goModTidy
 
 ```go
-func goModTidy() dagger.ContainerExecOpts
+func goModTidy() []string
 ```
 
 GoModTidy runs the go mod tidy command.

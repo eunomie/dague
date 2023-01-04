@@ -14,19 +14,21 @@ import (
 func GoBase(c *Client) *dagger.Container {
 	base := c.Dagger.Container().
 		From(c.Config.Go.Image.Src).
-		Exec(dague.ApkInstall("build-base", "git")).
-		Exec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
-		Exec(dague.GoInstall("golang.org/x/tools/cmd/goimports@latest")).
-		Exec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
+		WithExec(dague.ApkInstall("build-base", "git")).
+		WithExec(dague.GoInstall("golang.org/x/vuln/cmd/govulncheck@latest")).
+		WithExec(dague.GoInstall("golang.org/x/tools/cmd/goimports@latest")).
+		WithExec(dague.GoInstall("github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest"))
+
+	base = applyBase(base, c.Dagger, c.Config)
 
 	if len(c.Config.Go.Image.ApkPackages) > 0 {
-		base = base.Exec(dague.ApkInstall(c.Config.Go.Image.ApkPackages...))
+		base = base.WithExec(dague.ApkInstall(c.Config.Go.Image.ApkPackages...))
 	}
 	if len(c.Config.Go.Image.AptPackages) > 0 {
 		base = dague.AptInstall(base, c.Config.Go.Image.AptPackages...)
 	}
 	if len(c.Config.Go.Image.GoPackages) > 0 {
-		base = base.Exec(dague.GoInstall(c.Config.Go.Image.GoPackages...))
+		base = base.WithExec(dague.GoInstall(c.Config.Go.Image.GoPackages...))
 	}
 
 	return base.WithWorkdir(c.Config.Go.AppDir)
@@ -36,11 +38,11 @@ func GoBase(c *Client) *dagger.Container {
 func GoDeps(c *Client) *dagger.Container {
 	return GoBase(c).
 		WithMountedDirectory(c.Config.Go.AppDir, goModFiles(c)).
-		Exec(goModDownload())
+		WithExec(goModDownload())
 }
 
 func sources(c *Client, cont *dagger.Container) *dagger.Container {
-	return cont.WithMountedDirectory(c.Config.Go.AppDir, c.Dagger.Host().Workdir())
+	return cont.WithMountedDirectory(c.Config.Go.AppDir, c.Dagger.Host().Directory("."))
 }
 
 // Sources is a container based on GoDeps. It contains the Go source code but also all the needed dependencies from

@@ -12,18 +12,14 @@ go:
 
   build:
     targets:
-      - &dague-build
-        name: local
-        type: local
+      local: &dague-build
         path: ./cmd/docker-dague
-        out: ./dist
         env:
           CGO_ENABLED: 0
-          GIT_COMMIT: $ git describe --tags | cut -c 2-
+          GIT_COMMIT: shell git describe --tags | cut -c 2-
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${GIT_COMMIT:-dev}'
-      - << : *dague-build
-        name: cross
-        type: cross
+      cross:
+        << : *dague-build
         platforms:
           - linux/amd64
           - linux/arm64
@@ -31,17 +27,6 @@ go:
           - darwin/arm64
           - windows/amd64
           - windows/arm64
-
-  exec:
-    info:
-      deps:
-        - task goversion
-      cmds: |
-        uname -a > info.txt
-        go version >> info.txt
-      export:
-        pattern: info.txt
-        path: .
 
 tasks:
   install:
@@ -55,15 +40,3 @@ tasks:
     deps:
       - go:fmt
       - go:doc
-
-  goversion:
-    cmds: |
-      go version
-
-  info:
-    deps:
-      - go:exec info
-    cmds: |
-      uname -a
-      cat info.txt
-      rm -f info.txt

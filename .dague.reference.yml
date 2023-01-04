@@ -1,3 +1,10 @@
+# Any variables you need to define all the other content
+vars:
+  # It can be a static value
+  IMAGE_NAME: my_image
+  # Or any output of a shell script if starting with 'shell'
+  HOST_GOCACHE: shell go env GOCACHE
+
 # Go related configuration
 go:
   # Base image used to build and run tools
@@ -14,6 +21,17 @@ go:
     # Go packages to install
     goPackages:
       - mvdan.cc/gofumpt@latest
+    # Caches to use
+    caches:
+      - target: /go/pkg
+    # Mount points
+    mounts:
+      # Key can be expanded using env variables or top level variables
+      ${HOST_GOCACHE}: /cache/go
+    # Environment variables for the base images
+    env:
+      GOCACHE: /cache/go
+
   # Directory to mount files
   appDir: /go/src
   # Configuration of formatters
@@ -43,10 +61,7 @@ go:
   build:
     # List of targets to build by their name
     targets:
-      - &dague-build # This identifier will be re-used to avoid duplication
-        name: local
-        # Type can be local (using local os and arch as target) or cross (to enable multi-platform builds)
-        type: local
+      local: &dague-build # This identifier will be re-used to avoid duplication (optional)
         # Relative path to build
         path: ./cmd/docker-dague
         # Relative folder to put the generate files
@@ -55,13 +70,12 @@ go:
         env:
           # Could be a static value
           CGO_ENABLED: 0
-          # Or a shell command to execute, if starts with $
-          GIT_COMMIT: $ git describe --tags | cut -c 2-
+          # Or a shell command to execute, if starts with shell
+          GIT_COMMIT: shell git describe --tags | cut -c 2-
         # Ldflags to use to build. Environment variable will be expanded.
         ldflags: -s -w -X 'github.com/eunomie/dague/internal.Version=${GIT_COMMIT:-dev}'
-      - << : *dague-build # Copy all from above target and specify some values
-        name: cross
-        type: cross
+      cross:
+        << : *dague-build # Copy all from above target and specify some values
         # Defines the list of platforms to build
         platforms:
           - linux/amd64
@@ -91,11 +105,13 @@ go:
 tasks:
   # Map of targets with a shell script to run
   name:
+    cmds: echo this is a task
+  info:
     # Dependencies to run before this task
     deps:
-      - go:fmt
-    cmds: |
-      echo this is a task
-  info:
+      - go:exec info
+    # Commands can use the file exported by the go:exec task in dependency
     cmds: |
       uname -a
+      cat info.txt
+      rm -f info.txt

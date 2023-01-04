@@ -28,7 +28,7 @@ func pluginMain() {
 			Use:              PluginName,
 			TraverseChildren: true,
 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				c, err := config.Load()
+				c, err := config.Load(cmd.Context())
 				if err != nil {
 					return err
 				}
