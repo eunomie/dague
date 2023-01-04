@@ -32,17 +32,6 @@ go:
           - windows/amd64
           - windows/arm64
 
-  exec:
-    info:
-      deps:
-        - task goversion
-      cmds: |
-        uname -a > info.txt
-        go version >> info.txt
-      export:
-        pattern: info.txt
-        path: .
-
 tasks:
   install:
     deps:
@@ -55,15 +44,3 @@ tasks:
     deps:
       - go:fmt
       - go:doc
-
-  goversion:
-    cmds: |
-      go version
-
-  info:
-    deps:
-      - go:exec info
-    cmds: |
-      uname -a
-      cat info.txt
-      rm -f info.txt

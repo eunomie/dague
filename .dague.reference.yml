@@ -91,11 +91,13 @@ go:
 tasks:
   # Map of targets with a shell script to run
   name:
+    cmds: echo this is a task
+  info:
     # Dependencies to run before this task
     deps:
-      - go:fmt
-    cmds: |
-      echo this is a task
-  info:
+      - go:exec info
+    # Commands can use the file exported by the go:exec task in dependency
     cmds: |
       uname -a
+      cat info.txt
+      rm -f info.txt
