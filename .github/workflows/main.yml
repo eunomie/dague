@@ -10,69 +10,61 @@ on:
       - 'main'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v1
-      - uses: docker/setup-buildx-action@v1
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.19'
-      - name: bootstrap binary
-        run: go build -o docker-dague ./cmd/docker-dague
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dague-bin
-          path: ./docker-dague
-
   godoc:
-    needs: [build]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: dague-bin
+      - name: dague-bin
+        run: |
+          gh release download --repo eunomie/dague --pattern docker-dague_linux_amd64 -O docker-dague
+          chmod +x docker-dague
       - name: Check docs
         run: chmod +x ./docker-dague; ./docker-dague go:doc --check
 
   lint:
-    needs: [build]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: dague-bin
+      - name: dague-bin
+        run: |
+          gh release download --repo eunomie/dague --pattern docker-dague_linux_amd64 -O docker-dague
+          chmod +x docker-dague
       - name: Lint
         run: chmod +x ./docker-dague; ./docker-dague go:lint
 
   format:
-    needs: [build]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: dague-bin
+      - name: dague-bin
+        run: |
+          gh release download --repo eunomie/dague --pattern docker-dague_linux_amd64 -O docker-dague
+          chmod +x docker-dague
       - name: gofumpt
         run: chmod +x ./docker-dague; ./docker-dague go:fmt:print
 
   build-cross:
-    needs: [build]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: docker/setup-qemu-action@v1
-      - uses: actions/download-artifact@v2
-        with:
-          name: dague-bin
+      - name: dague-bin
+        run: |
+          gh release download --repo eunomie/dague --pattern docker-dague_linux_amd64 -O docker-dague
+          chmod +x docker-dague
       - name: Find new version
         id: new_version
         uses: mathieudutour/github-tag-action@v6.1
