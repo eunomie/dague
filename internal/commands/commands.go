@@ -3,6 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/eunomie/dague/internal/ui"
 
 	"github.com/eunomie/dague/config"
 )
@@ -50,5 +53,7 @@ func (l *List) Run(name string) Runnable {
 	if !ok {
 		return notImplemented
 	}
+
+	ui.Blue.Fprintf(os.Stderr, "[%s]\n", name)
 	return r
 }
