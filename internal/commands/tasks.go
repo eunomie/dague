@@ -3,12 +3,10 @@ package commands
 import (
 	"context"
 	"fmt"
-	"sort"
-	"strings"
+
+	"github.com/eunomie/dague/internal/ui"
 
 	"github.com/eunomie/dague/internal/shell"
-
-	"github.com/AlecAivazis/survey/v2"
 
 	"github.com/eunomie/dague/config"
 )
@@ -20,21 +18,11 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		for k := range conf.Tasks {
 			taskNames = append(taskNames, k)
 		}
-		sort.Strings(taskNames)
-		answer := struct{ Task string }{}
-		err := survey.Ask([]*survey.Question{
-			{
-				Name: "task",
-				Prompt: &survey.Select{
-					Message: "Choose the task to run:",
-					Options: taskNames,
-				},
-			},
-		}, &answer)
+		selected, err := ui.Select("Choose the task to run:", taskNames)
 		if err != nil {
-			return err
+			return fmt.Errorf("could not select the task to run: %w", err)
 		}
-		taskName = answer.Task
+		taskName = selected
 	} else {
 		taskName = args[0]
 	}
@@ -44,12 +32,8 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		return fmt.Errorf("could not find the task %q to run", taskName)
 	}
 
-	for _, dep := range task.Deps {
-		cmd := strings.Split(dep, " ")
-		name, args := cmd[0], cmd[1:]
-		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
-			return err
-		}
+	if err := l.RunDeps(ctx, task.Deps, conf); err != nil {
+		return err
 	}
 
 	if task.Cmds == "" {

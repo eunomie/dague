@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"sort"
 	"strings"
+
+	"github.com/eunomie/dague/internal/ui"
 
 	"github.com/eunomie/dague/internal/shell"
 
 	"github.com/eunomie/dague"
-
-	"github.com/AlecAivazis/survey/v2"
 
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
@@ -66,22 +65,11 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		for k := range conf.Go.Exec {
 			execNames = append(execNames, k)
 		}
-		sort.Strings(execNames)
-		answer := struct {
-			Exec string
-		}{}
-		if err := survey.Ask([]*survey.Question{
-			{
-				Name: "exec",
-				Prompt: &survey.Select{
-					Message: "Choose the task to run inside build container:",
-					Options: execNames,
-				},
-			},
-		}, &answer); err != nil {
+		selected, err := ui.Select("Choose the task to run inside the build container:", execNames)
+		if err != nil {
 			return fmt.Errorf("could not select the target to run: %w", err)
 		}
-		execName = answer.Exec
+		execName = selected
 	} else {
 		execName = args[0]
 	}
@@ -91,12 +79,8 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		return fmt.Errorf("could not find the target %q to run", execName)
 	}
 
-	for _, dep := range exec.Deps {
-		cmd := strings.Split(dep, " ")
-		name, args := cmd[0], cmd[1:]
-		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
-			return err
-		}
+	if err := l.RunDeps(ctx, exec.Deps, conf); err != nil {
+		return err
 	}
 
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {
@@ -117,23 +101,11 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		for k := range conf.Go.Build.Targets {
 			targetNames = append(targetNames, k)
 		}
-		sort.Strings(targetNames)
-		qs := []*survey.Question{
-			{
-				Name: "target",
-				Prompt: &survey.Select{
-					Message: "Choose the target to build:",
-					Options: targetNames,
-				},
-			},
-		}
-		answer := struct {
-			Target string
-		}{}
-		if err := survey.Ask(qs, &answer); err != nil {
+		selected, err := ui.Select("Choose the target to build:", targetNames)
+		if err != nil {
 			return fmt.Errorf("could not select the target to build: %w", err)
 		}
-		targetName = answer.Target
+		targetName = selected
 	} else {
 		targetName = args[0]
 	}

@@ -8,6 +8,7 @@ require (
 	github.com/docker/cli v20.10.17+incompatible
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
+	golang.org/x/term v0.3.0
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/sh/v3 v3.6.0
 )
@@ -62,7 +63,6 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
