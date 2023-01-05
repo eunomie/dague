@@ -3,12 +3,11 @@ package commands
 import (
 	"context"
 	"fmt"
-	"sort"
 	"strings"
 
-	"github.com/eunomie/dague/internal/shell"
+	"github.com/eunomie/dague/internal/ui"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/eunomie/dague/internal/shell"
 
 	"github.com/eunomie/dague/config"
 )
@@ -20,21 +19,15 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		for k := range conf.Tasks {
 			taskNames = append(taskNames, k)
 		}
-		sort.Strings(taskNames)
-		answer := struct{ Task string }{}
-		err := survey.Ask([]*survey.Question{
-			{
-				Name: "task",
-				Prompt: &survey.Select{
-					Message: "Choose the task to run:",
-					Options: taskNames,
-				},
-			},
-		}, &answer)
-		if err != nil {
-			return err
+		if len(taskNames) == 0 {
+			taskName = taskNames[0]
+		} else {
+			selected, err := ui.Select("Choose the task to run:", taskNames)
+			if err != nil {
+				return fmt.Errorf("could not select the task to run: %w", err)
+			}
+			taskName = selected
 		}
-		taskName = answer.Task
 	} else {
 		taskName = args[0]
 	}

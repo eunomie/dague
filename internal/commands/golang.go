@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"sort"
 	"strings"
+
+	"github.com/eunomie/dague/internal/ui"
 
 	"github.com/eunomie/dague/internal/shell"
 
 	"github.com/eunomie/dague"
-
-	"github.com/AlecAivazis/survey/v2"
 
 	"github.com/eunomie/dague/config"
 	"github.com/eunomie/dague/daggers"
@@ -66,22 +65,15 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		for k := range conf.Go.Exec {
 			execNames = append(execNames, k)
 		}
-		sort.Strings(execNames)
-		answer := struct {
-			Exec string
-		}{}
-		if err := survey.Ask([]*survey.Question{
-			{
-				Name: "exec",
-				Prompt: &survey.Select{
-					Message: "Choose the task to run inside build container:",
-					Options: execNames,
-				},
-			},
-		}, &answer); err != nil {
-			return fmt.Errorf("could not select the target to run: %w", err)
+		if len(execNames) == 1 {
+			execName = execNames[0]
+		} else {
+			selected, err := ui.Select("Choose the task to run inside the build container:", execNames)
+			if err != nil {
+				return fmt.Errorf("could not select the target to run: %w", err)
+			}
+			execName = selected
 		}
-		execName = answer.Exec
 	} else {
 		execName = args[0]
 	}
@@ -117,23 +109,15 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		for k := range conf.Go.Build.Targets {
 			targetNames = append(targetNames, k)
 		}
-		sort.Strings(targetNames)
-		qs := []*survey.Question{
-			{
-				Name: "target",
-				Prompt: &survey.Select{
-					Message: "Choose the target to build:",
-					Options: targetNames,
-				},
-			},
+		if len(targetNames) == 1 {
+			targetName = targetNames[0]
+		} else {
+			selected, err := ui.Select("Choose the target to build:", targetNames)
+			if err != nil {
+				return fmt.Errorf("could not select the target to build: %w", err)
+			}
+			targetName = selected
 		}
-		answer := struct {
-			Target string
-		}{}
-		if err := survey.Ask(qs, &answer); err != nil {
-			return fmt.Errorf("could not select the target to build: %w", err)
-		}
-		targetName = answer.Target
 	} else {
 		targetName = args[0]
 	}
