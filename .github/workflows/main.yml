@@ -36,7 +36,7 @@ jobs:
         with:
           name: dague-bin
       - name: Check docs
-        run: chmod +x ./docker-dague; ./docker-dague dague go:doc --check
+        run: chmod +x ./docker-dague; ./docker-dague go:doc --check
 
   lint:
     needs: [build]
@@ -48,7 +48,7 @@ jobs:
         with:
           name: dague-bin
       - name: Lint
-        run: chmod +x ./docker-dague; ./docker-dague dague go:lint
+        run: chmod +x ./docker-dague; ./docker-dague go:lint
 
   format:
     needs: [build]
@@ -60,7 +60,7 @@ jobs:
         with:
           name: dague-bin
       - name: gofumpt
-        run: chmod +x ./docker-dague; ./docker-dague dague go:fmt:print
+        run: chmod +x ./docker-dague; ./docker-dague go:fmt:print
 
   build-cross:
     needs: [build]
@@ -84,7 +84,7 @@ jobs:
       - name: Tag
         run: git tag v${{ steps.new_version.outputs.new_version }}
       - name: Cross build binaries
-        run: chmod +x ./docker-dague; ./docker-dague dague go:build cross
+        run: chmod +x ./docker-dague; ./docker-dague go:build cross
       - name: Upload artifacts
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
