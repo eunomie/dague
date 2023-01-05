@@ -228,7 +228,7 @@ func pluginMain() {
 
 func main() {
 	if plugin.RunningStandalone() {
-		os.Args = append([]string{"docker"}, os.Args[1:]...)
+		os.Args = append([]string{"docker", "dague"}, os.Args[1:]...)
 	}
 	pluginMain()
 }
