@@ -35,6 +35,8 @@ tasks:
     cmds: |
       mkdir -p ~/.docker/cli-plugins
       install dist/docker-dague ~/.docker/cli-plugins/docker-dague
+      echo Docker cli plugin installed, you can now use
+      echo "    docker dague"
 
   refresh:
     deps:

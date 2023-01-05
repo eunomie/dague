@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/eunomie/dague/internal/ui"
 
@@ -37,12 +36,8 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		return fmt.Errorf("could not find the task %q to run", taskName)
 	}
 
-	for _, dep := range task.Deps {
-		cmd := strings.Split(dep, " ")
-		name, args := cmd[0], cmd[1:]
-		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
-			return err
-		}
+	if err := l.RunDeps(ctx, task.Deps, conf); err != nil {
+		return err
 	}
 
 	if task.Cmds == "" {

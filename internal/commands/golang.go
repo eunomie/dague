@@ -83,12 +83,8 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		return fmt.Errorf("could not find the target %q to run", execName)
 	}
 
-	for _, dep := range exec.Deps {
-		cmd := strings.Split(dep, " ")
-		name, args := cmd[0], cmd[1:]
-		if err := l.Run(name)(ctx, args, conf, nil); err != nil {
-			return err
-		}
+	if err := l.RunDeps(ctx, exec.Deps, conf); err != nil {
+		return err
 	}
 
 	return daggers.RunInDagger(ctx, conf, func(c *daggers.Client) error {

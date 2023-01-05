@@ -10,10 +10,10 @@ import "github.com/eunomie/dague/internal/commands"
 
 ## Index
 
-- [func notImplemented(_ context.Context, _ []string, _ *config.Dague, _ map[string]interface{}) error](<#func-notimplemented>)
 - [type List](<#type-list>)
   - [func NewList() *List](<#func-newlist>)
-  - [func (l *List) Run(name string) Runnable](<#func-list-run>)
+  - [func (l *List) Run(ctx context.Context, name string, args []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-run>)
+  - [func (l *List) RunDeps(ctx context.Context, deps []string, conf *config.Dague) error](<#func-list-rundeps>)
   - [func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gobuild>)
   - [func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-godoc>)
   - [func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goexec>)
@@ -32,12 +32,6 @@ import "github.com/eunomie/dague/internal/commands"
 - [type Runnable](<#type-runnable>)
 
 
-## func notImplemented
-
-```go
-func notImplemented(_ context.Context, _ []string, _ *config.Dague, _ map[string]interface{}) error
-```
-
 ## type List
 
 ```go
@@ -55,7 +49,13 @@ func NewList() *List
 ### func \(\*List\) Run
 
 ```go
-func (l *List) Run(name string) Runnable
+func (l *List) Run(ctx context.Context, name string, args []string, conf *config.Dague, opts map[string]interface{}) error
+```
+
+### func \(\*List\) RunDeps
+
+```go
+func (l *List) RunDeps(ctx context.Context, deps []string, conf *config.Dague) error
 ```
 
 ### func \(\*List\) goBuild

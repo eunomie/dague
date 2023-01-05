@@ -78,7 +78,7 @@ func pluginMain() {
   go:lint:golangci Lint Go code using golangci`,
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:lint")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:lint", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -87,7 +87,7 @@ func pluginMain() {
 				Short:  "Lint Go code using govulncheck",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:lint:govuln")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:lint:govuln", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -96,7 +96,7 @@ func pluginMain() {
 				Short:  "Lint Go code using golangci",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:lint:golangci")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:lint:golangci", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -108,7 +108,7 @@ func pluginMain() {
   go:fmt:imports   Reorder imports using configured locals`,
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:fmt")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:fmt", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -117,7 +117,7 @@ func pluginMain() {
 				Short:  "Print result of go formatter",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:fmt:print")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:fmt:print", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -126,7 +126,7 @@ func pluginMain() {
 				Short:  "Write result of go formatter to existing files",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:fmt:write")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:fmt:write", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -135,7 +135,7 @@ func pluginMain() {
 				Short:  "Reorder imports",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:fmt:imports")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:fmt:imports", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -145,7 +145,7 @@ func pluginMain() {
   go:mod:download  Download go modules`,
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:mod")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:mod", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -154,7 +154,7 @@ func pluginMain() {
 				Short:  "Download go modules",
 				Args:   cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:mod:download")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:mod:download", args, &conf, nil)
 				},
 			},
 			&cobra.Command{
@@ -162,7 +162,7 @@ func pluginMain() {
 				Short: "Run go tests",
 				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:test")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:test", args, &conf, nil)
 				},
 			},
 
@@ -179,7 +179,7 @@ func pluginMain() {
 					Short: "Generate Go documentation into readme files",
 					Args:  cobra.NoArgs,
 					RunE: func(cmd *cobra.Command, args []string) error {
-						return l.Run("go:doc")(cmd.Context(), args, &conf, map[string]interface{}{
+						return l.Run(cmd.Context(), "go:doc", args, &conf, map[string]interface{}{
 							"check": opts.check,
 						})
 					},
@@ -196,7 +196,7 @@ func pluginMain() {
 				Short: "Compile go code",
 				Args:  cobra.MaximumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:build")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:build", args, &conf, nil)
 				},
 			},
 
@@ -205,7 +205,7 @@ func pluginMain() {
 				Short: "Execute scripts inside the build container",
 				Args:  cobra.MaximumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("go:exec")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "go:exec", args, &conf, nil)
 				},
 			},
 
@@ -214,7 +214,7 @@ func pluginMain() {
 				Short: "Run tasks",
 				Args:  cobra.MaximumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return l.Run("task")(cmd.Context(), args, &conf, nil)
+					return l.Run(cmd.Context(), "task", args, &conf, nil)
 				},
 			},
 		)
