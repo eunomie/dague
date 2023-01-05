@@ -65,15 +65,11 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 		for k := range conf.Go.Exec {
 			execNames = append(execNames, k)
 		}
-		if len(execNames) == 1 {
-			execName = execNames[0]
-		} else {
-			selected, err := ui.Select("Choose the task to run inside the build container:", execNames)
-			if err != nil {
-				return fmt.Errorf("could not select the target to run: %w", err)
-			}
-			execName = selected
+		selected, err := ui.Select("Choose the task to run inside the build container:", execNames)
+		if err != nil {
+			return fmt.Errorf("could not select the target to run: %w", err)
 		}
+		execName = selected
 	} else {
 		execName = args[0]
 	}
@@ -105,15 +101,11 @@ func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _
 		for k := range conf.Go.Build.Targets {
 			targetNames = append(targetNames, k)
 		}
-		if len(targetNames) == 1 {
-			targetName = targetNames[0]
-		} else {
-			selected, err := ui.Select("Choose the target to build:", targetNames)
-			if err != nil {
-				return fmt.Errorf("could not select the target to build: %w", err)
-			}
-			targetName = selected
+		selected, err := ui.Select("Choose the target to build:", targetNames)
+		if err != nil {
+			return fmt.Errorf("could not select the target to build: %w", err)
 		}
+		targetName = selected
 	} else {
 		targetName = args[0]
 	}

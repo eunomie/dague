@@ -18,15 +18,11 @@ func (l *List) task(ctx context.Context, args []string, conf *config.Dague, _ ma
 		for k := range conf.Tasks {
 			taskNames = append(taskNames, k)
 		}
-		if len(taskNames) == 0 {
-			taskName = taskNames[0]
-		} else {
-			selected, err := ui.Select("Choose the task to run:", taskNames)
-			if err != nil {
-				return fmt.Errorf("could not select the task to run: %w", err)
-			}
-			taskName = selected
+		selected, err := ui.Select("Choose the task to run:", taskNames)
+		if err != nil {
+			return fmt.Errorf("could not select the task to run: %w", err)
 		}
+		taskName = selected
 	} else {
 		taskName = args[0]
 	}
