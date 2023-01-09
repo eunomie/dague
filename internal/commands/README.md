@@ -17,10 +17,11 @@ import "github.com/eunomie/dague/internal/commands"
   - [func (l *List) goBuild(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gobuild>)
   - [func (l *List) goDoc(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-godoc>)
   - [func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goexec>)
-  - [func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmt>)
-  - [func (l *List) goFmtImports(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmtimports>)
+  - [func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error](<#func-list-gofmt>)
   - [func (l *List) goFmtPrint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmtprint>)
   - [func (l *List) goFmtWrite(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-gofmtwrite>)
+  - [func (l *List) goImportsPrint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goimportsprint>)
+  - [func (l *List) goImportsWrite(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-goimportswrite>)
   - [func (l *List) goLint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-golint>)
   - [func (l *List) goLintGolangCILint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-golintgolangcilint>)
   - [func (l *List) goLintGovuln(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error](<#func-list-golintgovuln>)
@@ -83,13 +84,7 @@ func (l *List) goExec(ctx context.Context, args []string, conf *config.Dague, _ 
 ### func \(\*List\) goFmt
 
 ```go
-func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
-```
-
-### func \(\*List\) goFmtImports
-
-```go
-func (l *List) goFmtImports(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
+func (l *List) goFmt(ctx context.Context, _ []string, conf *config.Dague, opts map[string]interface{}) error
 ```
 
 ### func \(\*List\) goFmtPrint
@@ -102,6 +97,18 @@ func (l *List) goFmtPrint(ctx context.Context, _ []string, conf *config.Dague, _
 
 ```go
 func (l *List) goFmtWrite(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
+```
+
+### func \(\*List\) goImportsPrint
+
+```go
+func (l *List) goImportsPrint(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
+```
+
+### func \(\*List\) goImportsWrite
+
+```go
+func (l *List) goImportsWrite(ctx context.Context, _ []string, conf *config.Dague, _ map[string]interface{}) error
 ```
 
 ### func \(\*List\) goLint
