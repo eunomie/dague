@@ -23,7 +23,8 @@ func NewList() *List {
 	l.register("go:fmt", l.goFmt)
 	l.register("go:fmt:print", l.goFmtPrint)
 	l.register("go:fmt:write", l.goFmtWrite)
-	l.register("go:fmt:imports", l.goFmtImports)
+	l.register("go:imports:write", l.goImportsWrite)
+	l.register("go:imports:print", l.goImportsPrint)
 
 	l.register("go:lint", l.goLint)
 	l.register("go:lint:govuln", l.goLintGovuln)

@@ -19,12 +19,14 @@ import "github.com/eunomie/dague/daggers"
 - [func GoBase(c *Client) *dagger.Container](<#func-gobase>)
 - [func GoDeps(c *Client) *dagger.Container](<#func-godeps>)
 - [func GoDoc(ctx context.Context, c *Client) error](<#func-godoc>)
-- [func GoImports(ctx context.Context, c *Client, locals []string) error](<#func-goimports>)
+- [func GoImportsPrint(ctx context.Context, c *Client, locals []string) error](<#func-goimportsprint>)
+- [func GoImportsWrite(ctx context.Context, c *Client, locals []string) error](<#func-goimportswrite>)
 - [func GoMod(c *Client) *dagger.Container](<#func-gomod>)
 - [func GoVulnCheck(ctx context.Context, c *Client) error](<#func-govulncheck>)
 - [func GolangCILint(ctx context.Context, c *Client) error](<#func-golangcilint>)
 - [func GolangCILintBase(c *Client) *dagger.Container](<#func-golangcilintbase>)
 - [func LocalBuild(ctx context.Context, c *Client, buildOpts types.LocalBuildOpts) error](<#func-localbuild>)
+- [func PrintFormatAndImports(ctx context.Context, c *Client, formatter string, locals []string) error](<#func-printformatandimports>)
 - [func PrintGoformatter(ctx context.Context, c *Client, formatter string) error](<#func-printgoformatter>)
 - [func RunGoTests(ctx context.Context, c *Client) error](<#func-rungotests>)
 - [func RunInDagger(ctx context.Context, conf *config.Dague, do func(*Client) error) error](<#func-runindagger>)
@@ -34,7 +36,8 @@ import "github.com/eunomie/dague/daggers"
 - [func formatPrint(formatter string) []string](<#func-formatprint>)
 - [func formatWrite(formatter string) []string](<#func-formatwrite>)
 - [func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error](<#func-gobuild>)
-- [func goImports(locals []string) []string](<#func-goimports>)
+- [func goImportsPrint(locals []string) []string](<#func-goimportsprint>)
+- [func goImportsWrite(locals []string) []string](<#func-goimportswrite>)
 - [func goModDownload() []string](<#func-gomoddownload>)
 - [func goModFiles(c *Client) *dagger.Directory](<#func-gomodfiles>)
 - [func goModTidy() []string](<#func-gomodtidy>)
@@ -103,10 +106,16 @@ GoDeps mount the Go module files and download the needed dependencies.
 func GoDoc(ctx context.Context, c *Client) error
 ```
 
-## func GoImports
+## func GoImportsPrint
 
 ```go
-func GoImports(ctx context.Context, c *Client, locals []string) error
+func GoImportsPrint(ctx context.Context, c *Client, locals []string) error
+```
+
+## func GoImportsWrite
+
+```go
+func GoImportsWrite(ctx context.Context, c *Client, locals []string) error
 ```
 
 ## func GoMod
@@ -137,6 +146,12 @@ func GolangCILintBase(c *Client) *dagger.Container
 
 ```go
 func LocalBuild(ctx context.Context, c *Client, buildOpts types.LocalBuildOpts) error
+```
+
+## func PrintFormatAndImports
+
+```go
+func PrintFormatAndImports(ctx context.Context, c *Client, formatter string, locals []string) error
 ```
 
 ## func PrintGoformatter
@@ -197,10 +212,16 @@ func formatWrite(formatter string) []string
 func goBuild(ctx context.Context, c *Client, src *dagger.Container, os, arch string, buildOpts types.BuildOpts, buildFile string) error
 ```
 
-## func goImports
+## func goImportsPrint
 
 ```go
-func goImports(locals []string) []string
+func goImportsPrint(locals []string) []string
+```
+
+## func goImportsWrite
+
+```go
+func goImportsWrite(locals []string) []string
 ```
 
 ## func goModDownload
