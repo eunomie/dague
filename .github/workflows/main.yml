@@ -50,7 +50,7 @@ jobs:
           gh release download --repo eunomie/dague --pattern docker-dague_linux_amd64 -O docker-dague
           chmod +x docker-dague
       - name: gofumpt
-        run: chmod +x ./docker-dague; ./docker-dague go:fmt:print
+        run: chmod +x ./docker-dague; ./docker-dague go:fmt --check
 
   build-cross:
     runs-on: ubuntu-latest
